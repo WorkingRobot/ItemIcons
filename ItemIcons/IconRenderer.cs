@@ -129,15 +129,6 @@ public sealed unsafe class IconRenderer : IDisposable
                 continue;
             }
 
-            // MiragePrismPrismItemDetail has -1 IconId, but it works perfectly fine, so we skip this check
-            // Nor is it touched by UpdateIcon..?
-            /*
-            // No icon in UI
-            var uiIcon = icon.AsComponentIcon();
-            if (uiIcon != null && uiIcon->IconId == -1)
-                continue;
-            */
-
             if (!DraggedNodeDrawn && (nint)icon.Node == DraggedNode)
             {
                 RenderIcon(DragNode!, item, iconProviders, onlyOneIcon);

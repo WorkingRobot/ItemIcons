@@ -2,7 +2,6 @@ using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using System;
 using LuminaItem = Lumina.Excel.GeneratedSheets.Item;
-using MiragePlateItem = ItemIcons.Agents.MiragePlateItem;
 
 namespace ItemIcons;
 

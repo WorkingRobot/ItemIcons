@@ -4,8 +4,6 @@ using ItemIcons.Agents;
 using ItemIcons.AtkIcons;
 using System.Collections.Generic;
 using System.Linq;
-using static ItemIcons.Agents.MiragePlateItem;
-using MiragePlateItem = ItemIcons.Agents.MiragePlateItem;
 
 namespace ItemIcons.ItemProviders;
 
@@ -39,20 +37,20 @@ internal sealed unsafe class MiragePrismMiragePlate : BaseItemProvider
         var slots = new Item?[12];
         foreach (var item in items)
         {
-            var slotIdx = item.Slot switch
+            var slotIdx = (MiragePlateItemSlotType)item.EquipSlotCategory switch
             {
-                SlotType.Offhand => 0,
-                SlotType.Mainhand => 1,
-                SlotType.Head => 2,
-                SlotType.Body => 3,
-                SlotType.Hands => 4,
-                SlotType.Legs => 5,
-                SlotType.Feet => 6,
-                SlotType.Ears => 7,
-                SlotType.Neck => 8,
-                SlotType.Wrist => 9,
-                SlotType.RingRight => 10,
-                SlotType.RingLeft => 11,
+                MiragePlateItemSlotType.Offhand => 0,
+                MiragePlateItemSlotType.Mainhand => 1,
+                MiragePlateItemSlotType.Head => 2,
+                MiragePlateItemSlotType.Body => 3,
+                MiragePlateItemSlotType.Hands => 4,
+                MiragePlateItemSlotType.Legs => 5,
+                MiragePlateItemSlotType.Feet => 6,
+                MiragePlateItemSlotType.Ears => 7,
+                MiragePlateItemSlotType.Neck => 8,
+                MiragePlateItemSlotType.Wrist => 9,
+                MiragePlateItemSlotType.RingRight => 10,
+                MiragePlateItemSlotType.RingLeft => 11,
                 _ => -1,
             };
             if (slotIdx == -1)

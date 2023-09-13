@@ -1,4 +1,3 @@
-using Dalamud.Logging;
 using Dalamud.Plugin.Services;
 using FFXIVClientStructs.FFXIV.Client.System.Memory;
 using FFXIVClientStructs.FFXIV.Component.GUI;
@@ -114,50 +113,19 @@ internal sealed record TextureIcon : BaseIcon
 
     private const int IconSize = 18;
 
-    public const bool SetPartsList = true;
     private unsafe bool ApplyTextures(AtkImageNode* node)
     {
-        if (SetPartsList)
+        if (node->PartsList != PartsList)
         {
-            if (node->PartsList != PartsList)
-            {
-                node->PartsList = PartsList;
-                node->PartId = 0;
-                return true;
-            }
-            return false;
+            node->PartsList = PartsList;
+            node->PartId = 0;
+            return true;
         }
-        else
-        {
-            if (node->PartsList->Id != Asset->Id)
-            {
-                PluginLog.Debug($"Unloading tex");
-                //node->UnloadTexture();
-                node->PartsList->Id = Asset->Id;
-                PluginLog.Debug($"Loading tex");
-                //node->LoadTexture(Texture, 2);
-                node->PartsList->Parts[node->PartId].UldAsset = Asset;
-
-                return true;
-            }
-            return false;
-        }
+        return false;
     }
 
     public override unsafe void Apply(AtkItemIcon icon, bool usePrimary, byte alpha)
     {
-        //if (AssetPtr == nint.Zero)
-        //    PluginLog.Debug($"AssetPtr is null");
-        //EnsureTexLoaded();
-        //if (Asset->AtkTexture.Resource == null)
-        //    PluginLog.Debug($"Resource is null {Asset->AtkTexture.TextureType}");
-        //else if (Asset->AtkTexture.Resource->TexFileResourceHandle == null)
-        //    PluginLog.Debug($"TexFileResourceHandle is null");
-        //else
-        //    PluginLog.Debug($"Nothing is null");
-        //EnsureKernelLoaded();
-        //PluginLog.Debug($"Applying {Texture} -> {KernelLoaded}");
-
         var node = usePrimary ? icon.ImageNode1 : icon.ImageNode2;
 
         node->AtkResNode.Color.A = alpha;
@@ -193,35 +161,4 @@ internal sealed record TextureIcon : BaseIcon
         if (PartsListPtr != nint.Zero)
             IMemorySpace.Free(PartsList);
     }
-
-    //private unsafe void EnsureTexLoaded()
-    //{
-    //    if (TexLoaded || AssetPtr == nint.Zero)
-    //        return;
-    //    TexLoaded = Asset->AtkTexture.LoadTexture(Texture, 1) == 0;
-    //    PluginLog.Debug($"Loaded {Texture} into resource -> {(nint)Asset->AtkTexture.Resource:X8}");
-    //}
-
-    //private unsafe void EnsureKernelLoaded()
-    //{
-    //    if (KernelLoaded || AssetPtr == nint.Zero || Asset->AtkTexture.Resource == null)
-    //        return;
-    //    KernelLoaded = LoadIntoKernel(&Asset->AtkTexture.Resource->TexFileResourceHandle->ResourceHandle);
-    //    PluginLog.Debug($"Loaded {Texture} into kernel -> {KernelLoaded}");
-    //}
-
-    //[StructLayout(LayoutKind.Explicit)]
-    //private unsafe partial struct ResourceHandleVTable
-    //{
-    //    [FieldOffset(48)] public delegate* unmanaged[Stdcall]<ResourceHandle*, byte> GetUserData;
-    //    [FieldOffset(136)] public delegate* unmanaged[Stdcall]<ResourceHandle*, ulong> GetLength;
-    //    [FieldOffset(184)] public delegate* unmanaged[Stdcall]<ResourceHandle*, byte*> GetData;
-    //    [FieldOffset(248)] public delegate* unmanaged[Stdcall]<ResourceHandle*, bool> LoadIntoKernel;
-    //    [FieldOffset(264)] public delegate* unmanaged[Stdcall]<ResourceHandle*, void*, bool, bool> Load;
-    //}
-
-    //private static unsafe bool LoadIntoKernel(ResourceHandle* handle)
-    //{
-    //    return ((ResourceHandleVTable*)handle->vtbl)->LoadIntoKernel(handle);
-    //}
 }

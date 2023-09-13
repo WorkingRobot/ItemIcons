@@ -6,11 +6,6 @@ using System.Collections.Generic;
 
 namespace ItemIcons;
 
-public interface IIconProviderConfiguration
-{
-
-}
-
 public enum ItemProviderCategory
 {
     Inventory,

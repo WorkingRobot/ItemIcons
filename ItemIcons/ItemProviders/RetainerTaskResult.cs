@@ -2,7 +2,6 @@ using Dalamud.Utility.Signatures;
 using FFXIVClientStructs.FFXIV.Client.System.Framework;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Component.GUI;
-using ItemIcons.Agents;
 using ItemIcons.AtkIcons;
 using System.Collections.Generic;
 
@@ -55,7 +54,7 @@ internal sealed unsafe class RetainerTaskResult : BaseItemProvider
         if (task->DisplayType != 3)
             return (null, null);
 
-        return (task->RewardItemId[0], task->RewardItemId[1]);
+        return (task->RewardItemIds[0], task->RewardItemIds[1]);
     }
 
     public override IEnumerable<Item?> GetItems(nint addon)
