@@ -5,6 +5,7 @@ using ItemIcons.AtkIcons;
 using System.Collections.Generic;
 using System.Linq;
 using static ItemIcons.Agents.MiragePlateItem;
+using MiragePlateItem = ItemIcons.Agents.MiragePlateItem;
 
 namespace ItemIcons.ItemProviders;
 
