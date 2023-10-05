@@ -141,9 +141,9 @@ internal sealed record TextureIcon : BaseIcon
             node->AtkResNode.ScaleY = NodeScale;
             node->Flags = NodeFlags;
 
-            node->AtkResNode.AddRed = unchecked((ushort)(short)AddRGB.X);
-            node->AtkResNode.AddGreen = unchecked((ushort)(short)AddRGB.Y);
-            node->AtkResNode.AddBlue = unchecked((ushort)(short)AddRGB.Z);
+            node->AtkResNode.AddRed = (short)AddRGB.X;
+            node->AtkResNode.AddGreen = (short)AddRGB.Y;
+            node->AtkResNode.AddBlue = (short)AddRGB.Z;
             node->AtkResNode.MultiplyRed = (byte)MultiplyRGB.X;
             node->AtkResNode.MultiplyGreen = (byte)MultiplyRGB.Y;
             node->AtkResNode.MultiplyBlue = (byte)MultiplyRGB.Z;

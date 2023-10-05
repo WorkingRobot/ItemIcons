@@ -1,5 +1,5 @@
-using Dalamud.Logging;
 using ItemIcons.IconTypes;
+using ItemIcons.Utils;
 using System.Collections.Generic;
 using System.Numerics;
 
@@ -115,7 +115,7 @@ internal sealed class Materia : IconProvider
         }
 
         IdOffset = RegisterIcons(Icons);
-        PluginLog.Debug($"Registering {GetType().Name} to {IdOffset}");
+        Log.Debug($"Registering {GetType().Name} to {IdOffset}");
     }
 
     public override uint? GetMatch(Item item)

@@ -1,5 +1,5 @@
-using Dalamud.Logging;
 using ItemIcons.IconTypes;
+using ItemIcons.Utils;
 
 namespace ItemIcons.IconProviders;
 
@@ -17,6 +17,6 @@ internal abstract unsafe class SingleIconProvider : IconProvider
     protected SingleIconProvider()
     {
         Id = RegisterIcons(new[] { Icon });
-        PluginLog.Debug($"Registering {GetType().Name} to {Id}");
+        Log.Debug($"Registering {GetType().Name} to {Id}");
     }
 }

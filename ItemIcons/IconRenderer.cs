@@ -1,4 +1,3 @@
-using Dalamud.Logging;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using ItemIcons.ItemProviders;
 using System;
@@ -8,6 +7,7 @@ using ItemIcons.IconProviders;
 using RetainerTaskResult = ItemIcons.ItemProviders.RetainerTaskResult;
 using Dalamud.Memory;
 using ItemIcons.AtkIcons;
+using ItemIcons.Utils;
 
 namespace ItemIcons;
 
@@ -164,7 +164,7 @@ public sealed unsafe class IconRenderer : IDisposable
         }
         catch (ArgumentOutOfRangeException e)
         {
-            PluginLog.LogError(e, $"Could not get icons for provider {provider.GetType().Name} for addon {addonName}.");
+            Log.Error(e, $"Could not get icons for provider {provider.GetType().Name} for addon {addonName}.");
             return null;
         }
         return iconEnum.ToArray();
@@ -203,7 +203,7 @@ public sealed unsafe class IconRenderer : IDisposable
     public void SetupAddon(AtkUnitBase* addon)
     {
         var name = GetAddonName(addon);
-        PluginLog.Debug($"Setup {name}");
+        Log.Debug($"Setup {name}");
         foreach (var provider in ItemProviders)
         {
             if (provider.GetDrawnAddonNames(nint.Zero)
@@ -226,7 +226,7 @@ public sealed unsafe class IconRenderer : IDisposable
     public void FinalizeAddon(AtkUnitBase* addon)
     {
         var name = GetAddonName(addon);
-        PluginLog.Debug($"Finalize {name}");
+        Log.Debug($"Finalize {name}");
         foreach (var provider in ItemProviders)
         {
             if (provider.GetDrawnAddonNames(nint.Zero)

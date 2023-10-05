@@ -6,15 +6,13 @@ using FFXIVClientStructs.FFXIV.Component.GUI;
 using Dalamud.Utility.Signatures;
 using ItemIcons.Windows;
 using System;
-using Dalamud.Logging;
 using FFXIVClientStructs.FFXIV.Client.UI;
+using ItemIcons.Utils;
 
 namespace ItemIcons;
 
 public sealed class Plugin : IDalamudPlugin
 {
-    public string Name => "Item Icons";
-
     public WindowSystem WindowSystem { get; }
 
     private Settings SettingsWindow { get; }
@@ -28,7 +26,8 @@ public sealed class Plugin : IDalamudPlugin
     private unsafe delegate void* AddonSetupDelegate(AtkUnitBase* addon);
     private unsafe delegate void AddonFinalizeDelegate(AtkUnitManager* manager, AtkUnitBase** addon);
 
-    [Signature("48 8B C4 41 56 48 83 EC 60 FF 81 AC 07 00 00", DetourName = nameof(UIModuleUpdateDetour))]
+    // Client::UI::UIModule.Update
+    [Signature("48 8B C4 41 56 48 83 EC 60 FF 81 E4 07 00 00", DetourName = nameof(UIModuleUpdateDetour))]
     private readonly Hook<UIModuleUpdateDelegate> uiModuleUpdateHook = null!;
     private unsafe delegate bool UIModuleUpdateDelegate(UIModule* module, float frameDelta);
 
@@ -55,7 +54,7 @@ public sealed class Plugin : IDalamudPlugin
         Service.PluginInterface.UiBuilder.Draw += WindowSystem.Draw;
         Service.PluginInterface.UiBuilder.OpenConfigUi += OpenSettingsWindow;
 
-        SignatureHelper.Initialise(this);
+        Service.GameInteropProvider.InitializeFromAttributes(this);
         addonSetupHook.Enable();
         addonFinalizeHook.Enable();
 
@@ -105,7 +104,7 @@ public sealed class Plugin : IDalamudPlugin
         }
         catch (Exception ex)
         {
-            PluginLog.Error(ex, "Error while drawing icons");
+            Log.Error(ex, "Error while drawing icons");
         }
     }
 

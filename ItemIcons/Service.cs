@@ -13,6 +13,8 @@ public sealed class Service
     [PluginService] public static IGameGui GameGui { get; private set; }
     [PluginService] public static IDataManager DataManager { get; private set; }
     [PluginService] public static ITextureProvider TextureProvider { get; private set; }
+    [PluginService] public static IGameInteropProvider GameInteropProvider { get; private set; }
+    [PluginService] public static IPluginLog PluginLog { get; private set; }
 
     public static Plugin Plugin { get; internal set; }
     public static Configuration Configuration { get; internal set; }

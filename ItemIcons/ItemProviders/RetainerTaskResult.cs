@@ -1,5 +1,4 @@
 using Dalamud.Utility.Signatures;
-using FFXIVClientStructs.FFXIV.Client.System.Framework;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using ItemIcons.AtkIcons;
@@ -19,7 +18,7 @@ internal sealed unsafe class RetainerTaskResult : BaseItemProvider
     private readonly GetDuplicatedNodeDelegate getDuplicatedNode = null!;
 
     public RetainerTaskResult() =>
-        SignatureHelper.Initialise(this);
+        Service.GameInteropProvider.InitializeFromAttributes(this);
 
     private static nint GetUldManager(nint drawnAddon)
     {
@@ -46,15 +45,14 @@ internal sealed unsafe class RetainerTaskResult : BaseItemProvider
 
     private static (uint? ItemA, uint? ItemB) GetItemIds()
     {
-        var agent = Framework.Instance()->GetUiModule()->GetAgentModule()->GetAgentByInternalId(AgentId.RetainerTask);
+        var agent = AgentRetainerTask.Instance();
         if (agent == null)
             return (null, null);
 
-        var task = ((AgentRetainerTask*)agent);
-        if (task->DisplayType != 3)
+        if (agent->DisplayType != 3)
             return (null, null);
 
-        return (task->RewardItemIds[0], task->RewardItemIds[1]);
+        return (agent->RewardItemIds[0], agent->RewardItemIds[1]);
     }
 
     public override IEnumerable<Item?> GetItems(nint addon)

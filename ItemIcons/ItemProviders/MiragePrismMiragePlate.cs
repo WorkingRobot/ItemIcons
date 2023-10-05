@@ -1,11 +1,27 @@
-using FFXIVClientStructs.FFXIV.Client.System.Framework;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
-using ItemIcons.Agents;
 using ItemIcons.AtkIcons;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace ItemIcons.ItemProviders;
+
+public enum MiragePlateItemSlotType : byte
+{
+    Mainhand,
+    Offhand,
+    Head,
+    Body,
+    Hands,
+    Waist,
+    Legs,
+    Feet,
+    Ears,
+    Neck,
+    Wrist,
+    RingRight,
+    RingLeft,
+    Empty = 0x0E
+}
 
 internal sealed unsafe class MiragePrismMiragePlate : BaseItemProvider
 {
@@ -21,11 +37,11 @@ internal sealed unsafe class MiragePrismMiragePlate : BaseItemProvider
 
     private static MiragePlateItem[]? GetMiragePlateItems()
     {
-        var agent = Framework.Instance()->GetUiModule()->GetAgentModule()->GetAgentByInternalId(AgentId.MiragePrismMiragePlate);
+        var agent = AgentMiragePrismMiragePlate.Instance();
         if (agent == null)
             return null;
 
-        return ((AgentMiragePrismMiragePlate*)agent)->PlateItemsSpan.ToArray();
+        return agent->PlateItemsSpan.ToArray();
     }
 
     public override IEnumerable<Item?> GetItems(nint addon)

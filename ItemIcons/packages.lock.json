@@ -4,9 +4,9 @@
     "net7.0-windows7.0": {
       "DalamudPackager": {
         "type": "Direct",
-        "requested": "[2.1.11, )",
-        "resolved": "2.1.11",
-        "contentHash": "9qlAWoRRTiL/geAvuwR/g6Bcbrd/bJJgVnB/RurBiyKs6srsP0bvpoo8IK+Eg8EA6jWeM6/YJWs66w4FIAzqPw=="
+        "requested": "[2.1.12, )",
+        "resolved": "2.1.12",
+        "contentHash": "Sc0PVxvgg4NQjcI8n10/VfUQBAS4O+Fw2pZrAqBdRMbthYGeogzu5+xmIGCGmsEZ/ukMOBuAqiNiB5qA3MRalg=="
       },
       "CSVFile": {
         "type": "Transitive",
@@ -17,36 +17,6 @@
         "type": "Transitive",
         "resolved": "30.0.1",
         "contentHash": "rcZtgbWR+As4G3Vpgx0AMNmShGuQLFjkHAPIIflzrfkJCx8/AOd4m96ZRmiU1Wi39qS5UVjV0P8qdgqOo5Cwyg=="
-      },
-      "Dalamud.ContextMenu": {
-        "type": "Transitive",
-        "resolved": "1.2.3",
-        "contentHash": "ydemplF7DNcA/LLeongDVzWUD/JV0Fw3EwA2+P0jYq3Le2ZYSt4U8qyJq4FyoChqt0lFG8BxYCAzfeWp4Jmnqw=="
-      },
-      "NaturalSort.Extension": {
-        "type": "Transitive",
-        "resolved": "3.2.0",
-        "contentHash": "E6DE1xnwGYIwvxMeqW/TwJ882q+NL+TBJtW1x+u5u77HMCupL9qBQUkQikFcZYH0oSBr47qLpC/UYx4atTLdQA=="
-      },
-      "SerialQueue": {
-        "type": "Transitive",
-        "resolved": "2.1.0",
-        "contentHash": "rmQcrFXgcrqT9M6+xdxAK/JWx1vFuCRT8fTdce4ALdze2/8N5yMRW9Vmkresw+JpL+JC8zuC1HfDkrfVgBUIqA=="
-      },
-      "System.Reactive": {
-        "type": "Transitive",
-        "resolved": "5.0.0",
-        "contentHash": "erBZjkQHWL9jpasCE/0qKAryzVBJFxGHVBAvgRN1bzM0q2s1S4oYREEEL0Vb+1kA/6BKb5FjUZMp5VXmy+gzkQ=="
-      },
-      "criticalcommonlib": {
-        "type": "Project",
-        "dependencies": {
-          "Dalamud.ContextMenu": "[1.2.3, )",
-          "LuminaSupplemental.Excel": "[6.0.2, )",
-          "NaturalSort.Extension": "[3.2.0, )",
-          "SerialQueue": "[2.1.0, )",
-          "System.Reactive": "[5.0.0, )"
-        }
       },
       "luminasupplemental.excel": {
         "type": "Project",

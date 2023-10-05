@@ -21,7 +21,7 @@ internal sealed unsafe class NeedGreed : BaseItemProvider
 
     public NeedGreed()
     {
-        SignatureHelper.Initialise(this);
+        Service.GameInteropProvider.InitializeFromAttributes(this);
         needGreedOnRequestedUpdateHook.Enable();
     }
 

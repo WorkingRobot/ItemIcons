@@ -1,8 +1,7 @@
-using Dalamud.Logging;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using FFXIVClientStructs.FFXIV.Component.Exd;
 using ItemIcons.IconTypes;
-using ItemIcons.ItemProviders;
+using ItemIcons.Utils;
 using System.Collections.Generic;
 
 namespace ItemIcons.IconProviders;
@@ -46,7 +45,7 @@ internal sealed class Obtained : SingleIconProvider
             obtainedItems.Add(itemId);
             return true;
         }
-        PluginLog.Debug($"Unknown response: {itemId} -> {ret}");
+        Log.Debug($"Unknown response: {itemId} -> {ret}");
         return false;
     }
 }

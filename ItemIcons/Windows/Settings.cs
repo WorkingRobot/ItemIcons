@@ -3,8 +3,8 @@ using System.Numerics;
 using Dalamud.Interface.Windowing;
 using ImGuiNET;
 using System.Linq;
-using Dalamud.Interface.Raii;
 using ItemIcons.IconProviders;
+using Dalamud.Interface.Utility.Raii;
 
 namespace ItemIcons.Windows;
 

@@ -1,5 +1,5 @@
-using Dalamud.Logging;
 using ItemIcons.IconTypes;
+using ItemIcons.Utils;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -26,7 +26,7 @@ internal sealed class Armoire : IconProvider
         }
 
         IdOffset = RegisterIcons(icons);
-        PluginLog.Debug($"Registering {GetType().Name} to {IdOffset}");
+        Log.Debug($"Registering {GetType().Name} to {IdOffset}");
     }
 
     public override uint? GetMatch(Item item)

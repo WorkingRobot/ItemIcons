@@ -1,6 +1,4 @@
-using FFXIVClientStructs.FFXIV.Client.System.Framework;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
-using ItemIcons.Agents;
 using ItemIcons.AtkIcons;
 using System.Collections.Generic;
 
@@ -19,11 +17,11 @@ internal sealed unsafe class MiragePrismPrismItemDetail : BaseItemProvider
 
     private static uint? GetItemId()
     {
-        var agent = Framework.Instance()->GetUiModule()->GetAgentModule()->GetAgentByInternalId(AgentId.MiragePrismPrismItemDetail);
+        var agent = AgentMiragePrismPrismItemDetail.Instance();
         if (agent == null)
             return null;
 
-        return ((AgentMiragePrismPrismItemDetail*)agent)->ItemId;
+        return agent->ItemId;
     }
     
     public override IEnumerable<Item?> GetItems(nint addon)

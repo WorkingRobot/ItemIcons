@@ -1,5 +1,5 @@
-using Dalamud.Logging;
 using ItemIcons.IconTypes;
+using ItemIcons.Utils;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -332,7 +332,7 @@ internal sealed class ArmoryJob : IconProvider
         }
         displayedCategories = CategoryIcons.Keys.ToImmutableSortedSet();
         IdOffset = RegisterIcons(icons);
-        PluginLog.Debug($"Registering {GetType().Name} to {IdOffset}");
+        Log.Debug($"Registering {GetType().Name} to {IdOffset}");
     }
 
     public override uint? GetMatch(Item item)
@@ -342,7 +342,4 @@ internal sealed class ArmoryJob : IconProvider
             return IdOffset + row;
         return null;
     }
-
-    //public override bool CanMatch(BaseItemProvider provider) =>
-    //    provider is ArmouryBoard;
 }

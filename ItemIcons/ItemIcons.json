@@ -6,7 +6,6 @@
     "RepoUrl": "https://github.com/WorkingRobot/ItemIcons",
     "InternalName": "ItemIcons",
     "ApplicableVersion": "any",
-    "DalamudApiLevel": 8,
     "Tags": [
         "icon",
         "item",
