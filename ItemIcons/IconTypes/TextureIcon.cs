@@ -36,12 +36,8 @@ internal sealed record TextureIcon : BaseIcon
 
     private unsafe TextureIcon(string texture, uint? iconId, UldRect? rect)
     {
-        if (texture.EndsWith("_hr1.tex"))
-        {
-            texture = texture.Replace("_hr1.tex", ".tex");
-            if (rect != null)
-                rect = new UldRect((ushort)(rect.Value.U / 2), (ushort)(rect.Value.V / 2), (ushort)(rect.Value.Width / 2), (ushort)(rect.Value.Height / 2));
-        }
+        if (texture.Contains("_hr1"))
+            throw new ArgumentException("High res textures are unsupported");
 
         Texture = texture;
         Rect = rect;

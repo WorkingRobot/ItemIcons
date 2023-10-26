@@ -156,12 +156,12 @@ internal sealed class ArmoryJob : IconProvider
     // Icons
     public IconSet RoleSetIcons { get; } = new(new TextureDescriptor?[]
     {
-        new("ui/uld/LFG_hr1.tex", new(168, 216, 56, 56)), // All
-        new("ui/uld/LFG_hr1.tex", new(0, 216, 56, 56)), // Tank
-        new("ui/uld/LFG_hr1.tex", new(56, 216, 56, 56)), // Healer
-        new("ui/uld/LFG_hr1.tex", new(112, 216, 56, 56)), // DPS
-        new("ui/uld/LFG_hr1.tex", new(0, 576, 56, 56)), // Crafter
-        new("ui/uld/LFG_hr1.tex", new(56, 576, 56, 56)), // Gatherer
+        new("ui/uld/LFG.tex", new(84, 108, 28, 28)), // All
+        new("ui/uld/LFG.tex", new(0, 108, 28, 28)), // Tank
+        new("ui/uld/LFG.tex", new(28, 108, 28, 28)), // Healer
+        new("ui/uld/LFG.tex", new(56, 108, 28, 28)), // DPS
+        new("ui/uld/LFG.tex", new(0, 288, 28, 28)), // Crafter
+        new("ui/uld/LFG.tex", new(28, 288, 28, 28)), // Gatherer
         null, // Pure Healer
         null, // Shield Healer
         null, // Melee
@@ -177,12 +177,12 @@ internal sealed class ArmoryJob : IconProvider
     // Icons with square background
     public IconSet RoleSetSquare { get; } = new(new TextureDescriptor?[]
     {
-        new("ui/uld/LFG_hr1.tex", new(168, 160, 56, 56)), // All
-        new("ui/uld/LFG_hr1.tex", new(0, 160, 56, 56)), // Tank
-        new("ui/uld/LFG_hr1.tex", new(56, 160, 56, 56)), // Healer
-        new("ui/uld/LFG_hr1.tex", new(112, 160, 56, 56)), // DPS
-        new("ui/uld/LFG_hr1.tex", new(112, 576, 56, 56)), // Crafter
-        new("ui/uld/LFG_hr1.tex", new(168, 576, 56, 56)), // Gatherer
+        new("ui/uld/LFG.tex", new(84, 80, 28, 28)), // All
+        new("ui/uld/LFG.tex", new(0, 80, 28, 28)), // Tank
+        new("ui/uld/LFG.tex", new(28, 80, 28, 28)), // Healer
+        new("ui/uld/LFG.tex", new(56, 80, 28, 28)), // DPS
+        new("ui/uld/LFG.tex", new(56, 288, 28, 28)), // Crafter
+        new("ui/uld/LFG.tex", new(84, 288, 28, 28)), // Gatherer
         null, // Pure Healer
         null, // Shield Healer
         null, // Melee
@@ -199,16 +199,16 @@ internal sealed class ArmoryJob : IconProvider
     public IconSet RoleSetRounded { get; } = new(new TextureDescriptor?[]
     {
         null, // All
-        new("ui/uld/LFGSelectRole_hr1.tex", new(0, 56, 56, 56)), // Tank
-        new("ui/uld/LFGSelectRole_hr1.tex", new(56, 56, 56, 56)), // Healer
-        new("ui/uld/LFGSelectRole_hr1.tex", new(112, 56, 56, 56)), // DPS
+        new("ui/uld/LFGSelectRole.tex", new(0, 28, 28, 28)), // Tank
+        new("ui/uld/LFGSelectRole.tex", new(28, 28, 28, 28)), // Healer
+        new("ui/uld/LFGSelectRole.tex", new(56, 28, 28, 28)), // DPS
         null, // Crafter
         null, // Gatherer
-        new("ui/uld/LFGSelectRole_hr1.tex", new(0, 112, 56, 56)), // Pure Healer
-        new("ui/uld/LFGSelectRole_hr1.tex", new(56, 112, 56, 56)), // Shield Healer
-        new("ui/uld/LFGSelectRole_hr1.tex", new(0, 0, 56, 56)), // Melee
-        new("ui/uld/LFGSelectRole_hr1.tex", new(56, 0, 56, 56)), // Ranged
-        new("ui/uld/LFGSelectRole_hr1.tex", new(112, 0, 56, 56)), // Caster
+        new("ui/uld/LFGSelectRole.tex", new(0, 56, 28, 28)), // Pure Healer
+        new("ui/uld/LFGSelectRole.tex", new(28, 56, 28, 28)), // Shield Healer
+        new("ui/uld/LFGSelectRole.tex", new(0, 0, 28, 28)), // Melee
+        new("ui/uld/LFGSelectRole.tex", new(28, 0, 28, 28)), // Ranged
+        new("ui/uld/LFGSelectRole.tex", new(56, 0, 28, 28)), // Caster
         null, // Tank/Healer
         null, // Tank/DPS
         null, // Healer/DPS
@@ -219,10 +219,10 @@ internal sealed class ArmoryJob : IconProvider
     // Mini rectangles
     public IconSet RoleSetMini { get; } = new(new TextureDescriptor?[]
     {
-        new("ui/uld/LFG2_hr1.tex", new(32, 40, 32, 40)), // All
-        new("ui/uld/LFG2_hr1.tex", new(0, 0, 32, 40)), // Tank
-        new("ui/uld/LFG2_hr1.tex", new(0, 40, 32, 40)), // Healer
-        new("ui/uld/LFG2_hr1.tex", new(32, 0, 32, 40)), // DPS
+        new("ui/uld/LFG2.tex", new(16, 20, 16, 20)), // All
+        new("ui/uld/LFG2.tex", new(0, 0, 16, 20)), // Tank
+        new("ui/uld/LFG2.tex", new(0, 20, 16, 20)), // Healer
+        new("ui/uld/LFG2.tex", new(16, 0, 16, 20)), // DPS
         null, // Crafter
         null, // Gatherer
         null, // Pure Healer
@@ -230,11 +230,11 @@ internal sealed class ArmoryJob : IconProvider
         null, // Melee
         null, // Ranged
         null, // Caster
-        new("ui/uld/LFG2_hr1.tex", new(64, 40, 32, 40)), // Tank/Healer
-        new("ui/uld/LFG2_hr1.tex", new(60, 0, 32, 40)), // Tank/DPS
-        new("ui/uld/LFG2_hr1.tex", new(96, 0, 32, 40)), // Healer/DPS
-        new("ui/uld/LFG2_hr1.tex", new(96, 40, 32, 40)), // DoM/DoW
-        new("ui/uld/LFG2_hr1.tex", new(0, 80, 32, 40)), // DoH/DoL
+        new("ui/uld/LFG2.tex", new(32, 20, 16, 20)), // Tank/Healer
+        new("ui/uld/LFG2.tex", new(30, 0, 16, 20)), // Tank/DPS
+        new("ui/uld/LFG2.tex", new(48, 0, 16, 20)), // Healer/DPS
+        new("ui/uld/LFG2.tex", new(48, 20, 16, 20)), // DoM/DoW
+        new("ui/uld/LFG2.tex", new(0, 40, 16, 20)), // DoH/DoL
     });
 
     private IconSet JobSetCrafter => JobSetYellow;

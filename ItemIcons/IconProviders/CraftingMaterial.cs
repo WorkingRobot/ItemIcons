@@ -8,7 +8,7 @@ internal sealed class CraftingMaterial : SingleIconProvider
 {
     public override string Name => "Crafting Material";
 
-    public override BaseIcon Icon => new TextureIcon("ui/uld/ToggleButton_hr1.tex", new(208, 78, 36, 36)) { Scale = 1.5f, Offset = -6 };
+    public override BaseIcon Icon => new TextureIcon("ui/uld/ToggleButton.tex", new(104, 39, 18, 18)) { Scale = 1.5f, Offset = -6 };
 
     private readonly ImmutableSortedSet<uint> craftingMaterials;
 
