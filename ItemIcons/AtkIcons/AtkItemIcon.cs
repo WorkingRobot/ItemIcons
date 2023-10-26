@@ -1,5 +1,6 @@
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using ItemIcons.IconProviders;
+using ItemIcons.Utils;
 using System;
 
 namespace ItemIcons.AtkIcons;
@@ -44,6 +45,9 @@ public abstract unsafe class AtkItemIcon
         ImageNode1->AtkResNode.Color.A = 0;
         ImageNode2->AtkResNode.Color.A = 0;
         TextNode->AtkResNode.Color.A = 0;
+        NodeUtils.SetVisibility(&ImageNode1->AtkResNode, false);
+        NodeUtils.SetVisibility(&ImageNode2->AtkResNode, false);
+        NodeUtils.SetVisibility(&TextNode->AtkResNode, false);
     }
 
     public static (bool IsPrimary, bool IsSecondary, byte Alpha) GetAlphaForIcon(int idx, int iconCount, ulong msTimestamp)
