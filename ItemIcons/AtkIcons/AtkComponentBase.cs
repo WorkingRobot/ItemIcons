@@ -60,7 +60,6 @@ internal abstract unsafe class AtkComponentBaseItemIcon : AtkItemIcon
     public override unsafe void UpdateDirtyNode(AtkResNode* node)
     {
         base.UpdateDirtyNode(node);
-        Service.Plugin.atkUldManagerUpdateNodeColors(&Component->UldManager, node, Node);
-        Service.Plugin.atkUldManagerUpdateNodeTransform(&Component->UldManager, node, Node);
+        Service.Plugin.atkUldManagerUpdateNodeTree(&Component->UldManager, node, node->ParentNode, true);
     }
 }

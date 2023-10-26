@@ -31,13 +31,9 @@ public sealed class Plugin : IDalamudPlugin
     private readonly Hook<UIModuleUpdateDelegate> uiModuleUpdateHook = null!;
     private unsafe delegate bool UIModuleUpdateDelegate(UIModule* module, float frameDelta);
 
-    [Signature("48 89 5C 24 10 57 48 83 EC 20 8B 82 A0 00 00 00")]
-    public readonly AtkUldManagerUpdateNodeTransformDelegate atkUldManagerUpdateNodeTransform = null!;
-    public unsafe delegate void AtkUldManagerUpdateNodeTransformDelegate(AtkUldManager* manager, AtkResNode* node, AtkResNode* nodeParent);
-
-    [Signature("4C 8B CA 4D 85 C0 75 43")]
-    public readonly AtkUldManagerUpdateNodeColorsDelegate atkUldManagerUpdateNodeColors = null!;
-    public unsafe delegate void AtkUldManagerUpdateNodeColorsDelegate(AtkUldManager* manager, AtkResNode* node, AtkResNode* nodeParent);
+    [Signature("E8 ?? ?? ?? ?? 48 8B 45 28 48 8B CE")]
+    public readonly AtkUldManagerUpdateNodeTreeDelegate atkUldManagerUpdateNodeTree = null!;
+    public unsafe delegate void AtkUldManagerUpdateNodeTreeDelegate(AtkUldManager* manager, AtkResNode* node, AtkResNode* nodeParent, bool isShallowUpdate);
 
     public Plugin([RequiredVersion("1.0")] DalamudPluginInterface pluginInterface)
     {
