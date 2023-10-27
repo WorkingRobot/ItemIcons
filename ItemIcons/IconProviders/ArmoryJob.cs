@@ -234,7 +234,7 @@ internal sealed class ArmoryJob : IconProvider
         null, // Ranged
         null, // Caster
         new("ui/uld/LFG2.tex", new(32, 20, 16, 20)), // Tank/Healer
-        new("ui/uld/LFG2.tex", new(30, 0, 16, 20)), // Tank/DPS
+        new("ui/uld/LFG2.tex", new(32, 0, 16, 20)), // Tank/DPS
         new("ui/uld/LFG2.tex", new(48, 0, 16, 20)), // Healer/DPS
         new("ui/uld/LFG2.tex", new(48, 20, 16, 20)), // DoM/DoW
         new("ui/uld/LFG2.tex", new(0, 40, 16, 20)), // DoH/DoL
@@ -277,7 +277,7 @@ internal sealed class ArmoryJob : IconProvider
             [24] = JobSetRanged[22], // BRD
             [25] = JobSetHealer[23], // WHM
             [26] = JobSetCaster[24], // BLM
-            [28] = JobSetCaster[24], // SMN
+            [28] = JobSetCaster[26], // SMN
             [29] = JobSetHealer[27], // SCH
             [38] = JobSetTank[18], // GLA PLD
             [41] = JobSetMelee[19], // PGL MNK
@@ -285,7 +285,7 @@ internal sealed class ArmoryJob : IconProvider
             [47] = JobSetMelee[21], // LNC DRG
             [50] = JobSetRanged[22], // ARC BRD
             [53] = JobSetHealer[23], // CNJ WHM
-            [55] = JobSetCaster[25], // THM BLM
+            [55] = JobSetCaster[24], // THM BLM
             [69] = JobSetCaster[26], // ACN SMN
             [92] = JobSetMelee[29], // NIN
             [93] = JobSetMelee[29], // ROG NIN
@@ -302,8 +302,8 @@ internal sealed class ArmoryJob : IconProvider
             [181] = JobSetHealer[39], // SGE
 
             [1] = RoleSet[0], // All Classes
-            [30] = RoleSet[14], // Disciple of War
-            [31] = RoleSet[14], // Disciple of Magic
+            [30] = RoleSet[12], // Disciple of War
+            [31] = RoleSet[13], // Disciple of Magic
             [34] = RoleSet[14], // Disciples of War or Magic
 
             [32] = RoleSet[5], // Disciple of the Land
