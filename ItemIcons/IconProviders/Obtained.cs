@@ -35,16 +35,21 @@ internal sealed class Obtained : SingleIconProvider
         var ret = IsItemActionUnlocked(itemId);
         if (!ret.HasValue)
             return false;
+        // Unobtainable items
         else if (ret == 4)
         {
             unobtainableItems.Add(itemId);
             return false;
         }
+        // Already obtained items
         else if (ret == 1)
         {
             obtainedItems.Add(itemId);
             return true;
         }
+        // Unobtained items
+        else if (ret == 2)
+            return false;
         Log.Debug($"Unknown response: {itemId} -> {ret}");
         return false;
     }
