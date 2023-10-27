@@ -2,6 +2,7 @@ using Dalamud.Interface.Windowing;
 using Dalamud.IoC;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
+using ItemIcons.Utils;
 
 namespace ItemIcons;
 
@@ -19,5 +20,6 @@ public sealed class Service
     public static Plugin Plugin { get; internal set; }
     public static Configuration Configuration { get; internal set; }
     public static WindowSystem WindowSystem => Plugin.WindowSystem;
+    public static IconManager IconManager => Plugin.IconManager;
 #pragma warning restore CS8618
 }
