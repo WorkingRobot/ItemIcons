@@ -23,7 +23,11 @@ public abstract unsafe class AtkItemIcon
 
     public virtual void UpdateDirtyNode(AtkResNode* node)
     {
-        node->DrawFlags |= 1;
+        // 0x1 = IsDirty
+        // 0x2 = AreChildrenDirty
+        // 0x4 = IsTransformDirty
+        // 0x8 = AreChildrenTransformDirty
+        node->DrawFlags |= 0x5;
     }
 
     public void SetIcons(ReadOnlySpan<uint> iconIds, ulong msTimestamp)
