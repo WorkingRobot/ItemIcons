@@ -55,9 +55,12 @@ internal sealed class ArmoryJob : IconProvider
             }
         }
 
+        public BaseIcon? TryGet(int index) =>
+            icons.Length > index ? icons[index] : null;
+
         public BaseIcon this[int index] =>
-            (icons.Length > index ? icons[index] : null) ??
-            throw new ArgumentOutOfRangeException(nameof(index), index, "No icon at that index");
+            TryGet(index) ??
+                throw new ArgumentOutOfRangeException(nameof(index), index, "No icon at that index");
 
         public int Count => icons.Length;
     }
