@@ -7,6 +7,7 @@ using ItemIcons.IconProviders;
 using Dalamud.Interface.Utility.Raii;
 using ItemIcons.IconTypes;
 using Dalamud.Utility;
+using System.Collections.Generic;
 
 namespace ItemIcons.Windows;
 
@@ -35,69 +36,24 @@ public class Settings : Window
         IconProviders = Service.Plugin.Renderer.IconProviders.OrderBy(t => t.Name).ToArray();
     }
 
-    private ItemProviderCategory? selectedItemProvider { get; set; }
+    private ItemProviderCategory? SelectedItemProvider { get; set; }
+    private IconProvider? SelectedIconProvider { get; set; }
+    private string? SelectedTab { get; set; }
 
     public override unsafe void Draw()
     {
-        var isDirty = false;
+        var oldCode = Config.GetHashCode();
 
-        using (var table = ImRaii.Table("ItemIconsSettings", 2, ImGuiTableFlags.Resizable))
+        using (var tabs = ImRaii.TabBar("tabs"))
         {
-            if (table)
+            if (tabs)
             {
-                ImGui.TableSetupColumn("", ImGuiTableColumnFlags.WidthFixed, 250);
-                ImGui.TableSetupColumn("", ImGuiTableColumnFlags.WidthStretch);
-                ImGui.TableNextColumn();
-                foreach (var provider in ItemProviderTypes)
-                {
-                    var name = provider.ToName();
-                    if (ImGui.Selectable(name, provider == selectedItemProvider))
-                    {
-                        selectedItemProvider = provider;
-                        if (!Config.ItemProviders.ContainsKey(provider))
-                            Config.ItemProviders[provider] = new();
-                    }
-                }
-                ImGui.TableNextColumn();
-
-                ImGui.Text($"{selectedItemProvider?.ToName()}");
-                if (selectedItemProvider.HasValue)
-                {
-                    var itemConfig = Config.ItemProviders[selectedItemProvider.Value];
-
-                    var b = itemConfig.Enabled;
-                    if (ImGui.Checkbox("Enabled", ref b))
-                    {
-                        itemConfig.Enabled = b;
-                        isDirty = true;
-                    }
-
-                    using var disabled = ImRaii.Disabled(!itemConfig.Enabled);
-
-                    b = itemConfig.ShowOnlyOne;
-                    if (ImGui.Checkbox("Show Only One Icon", ref b))
-                    {
-                        itemConfig.ShowOnlyOne = b;
-                        isDirty = true;
-                    }
-
-                    ImGui.Separator();
-                    foreach (var provider in IconProviders)
-                    {
-                        var typeName = provider.GetType().FullName!;
-                        if (!itemConfig.IconProviders.TryGetValue(typeName, out var iconEnabled))
-                            iconEnabled = true;
-                        if (ImGui.Checkbox(provider.Name, ref iconEnabled))
-                        {
-                            itemConfig.IconProviders[typeName] = iconEnabled;
-                            isDirty = true;
-                        }
-                    }
-                }
+                DrawTabItemProviders();
+                DrawTabIconProviders();
             }
         }
 
-        if (isDirty)
+        if (Config.GetHashCode() != oldCode)
             Config.Save();
 
         if (ShowArmoryJobIcons)
@@ -122,6 +78,115 @@ public class Settings : Window
             DrawIconSet("Roles", a.RoleSet);
             ImGui.Separator();
             DrawAllIcons(a);
+        }
+    }
+    
+    private ImRaii.IEndObject TabItem(string label)
+    {
+        var isSelected = string.Equals(SelectedTab, label, StringComparison.Ordinal);
+        if (isSelected)
+        {
+            SelectedTab = null;
+            var open = true;
+            return ImRaii.TabItem(label, ref open, ImGuiTabItemFlags.SetSelected);
+        }
+        return ImRaii.TabItem(label);
+    }
+
+    private void DrawTabItemProviders()
+    {
+        using var tab = TabItem("Item Providers");
+        if (!tab)
+            return;
+
+        using (var table = ImRaii.Table("providers", 2, ImGuiTableFlags.Resizable))
+        {
+            if (table)
+            {
+                ImGui.TableSetupColumn("", ImGuiTableColumnFlags.WidthFixed, 250);
+                ImGui.TableSetupColumn("", ImGuiTableColumnFlags.WidthStretch);
+                ImGui.TableNextColumn();
+                foreach (var provider in ItemProviderTypes)
+                {
+                    var name = provider.ToName();
+                    if (ImGui.Selectable(name, provider == SelectedItemProvider))
+                    {
+                        SelectedItemProvider = provider;
+                        if (!Config.ItemProviders.ContainsKey(provider))
+                            Config.ItemProviders[provider] = new();
+                    }
+                }
+                ImGui.Dummy(new(0, ImGui.GetContentRegionAvail().Y - ImGui.GetStyle().CellPadding.Y));
+                ImGui.TableNextColumn();
+
+                ImGui.Text($"{SelectedItemProvider?.ToName()}");
+                if (SelectedItemProvider.HasValue)
+                {
+                    var itemConfig = Config.ItemProviders[SelectedItemProvider.Value];
+
+                    var b = itemConfig.Enabled;
+                    if (ImGui.Checkbox("Enabled", ref b))
+                        itemConfig.Enabled = b;
+
+                    using var disabled = ImRaii.Disabled(!itemConfig.Enabled);
+
+                    b = itemConfig.ShowOnlyOne;
+                    if (ImGui.Checkbox("Show Only One Icon", ref b))
+                        itemConfig.ShowOnlyOne = b;
+
+                    ImGui.Separator();
+                    foreach (var provider in IconProviders)
+                    {
+                        var typeName = provider.GetType().FullName!;
+
+                        var iconEnabled = Config.IconProviders.GetValueOrDefault(typeName, true);
+                        using var _disabled = ImRaii.Disabled(!iconEnabled);
+
+                        iconEnabled = iconEnabled && itemConfig.IconProviders.GetValueOrDefault(typeName, true);
+                        if (ImGui.Checkbox(provider.Name, ref iconEnabled))
+                            itemConfig.IconProviders[typeName] = iconEnabled;
+                    }
+                }
+            }
+        }
+    }
+
+    private void DrawTabIconProviders()
+    {
+        using var tab = TabItem("Icon Providers");
+        if (!tab)
+            return;
+
+        using (var table = ImRaii.Table("providers", 2, ImGuiTableFlags.Resizable))
+        {
+            if (table)
+            {
+                ImGui.TableSetupColumn("", ImGuiTableColumnFlags.WidthFixed, 250);
+                ImGui.TableSetupColumn("", ImGuiTableColumnFlags.WidthStretch);
+                ImGui.TableNextColumn();
+                foreach (var iconProvider in IconProviders)
+                {
+                    if (ImGui.Selectable(iconProvider.Name, iconProvider == SelectedIconProvider))
+                    {
+                        Config.IconProviders.TryAdd(iconProvider.GetType().FullName!, true);
+                        SelectedIconProvider = iconProvider;
+                    }
+                }
+                ImGui.Dummy(new(0, ImGui.GetContentRegionAvail().Y - ImGui.GetStyle().CellPadding.Y));
+                ImGui.TableNextColumn();
+
+                ImGui.Text($"{SelectedIconProvider?.Name}");
+                if (SelectedIconProvider is { } provider)
+                {
+                    var name = provider.GetType().FullName!;
+                    var b = Config.IconProviders[name];
+                    if (ImGui.Checkbox("Enabled", ref b))
+                        Config.IconProviders[name] = b;
+
+                    ImGui.Separator();
+                    ImGui.Text("hi");
+                }
+            }
         }
     }
 
