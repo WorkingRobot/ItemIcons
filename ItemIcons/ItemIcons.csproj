@@ -33,6 +33,12 @@
    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
      <WarningLevel>7</WarningLevel>
    </PropertyGroup>
+  
+   <ItemGroup>
+     <Compile Remove="Config\**" />
+     <EmbeddedResource Remove="Config\**" />
+     <None Remove="Config\**" />
+   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="DalamudPackager" Version="2.1.12" />
     <ProjectReference Include="..\LuminaSupplemental\src\LuminaSupplemental.Excel\LuminaSupplemental.Excel.csproj" />
@@ -64,9 +70,6 @@
       <HintPath>$(DalamudLibPath)Lumina.Excel.dll</HintPath>
       <Private>false</Private>
     </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Config\" />
   </ItemGroup>
 
 </Project>
