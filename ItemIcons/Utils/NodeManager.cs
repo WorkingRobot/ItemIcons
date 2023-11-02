@@ -11,7 +11,7 @@ internal static unsafe class NodeManager
         imageNode->AtkResNode.Type = NodeType.Image;
         imageNode->AtkResNode.NodeID = nodeId;
         imageNode->AtkResNode.NodeFlags = NodeFlags.AnchorLeft | NodeFlags.AnchorTop | NodeFlags.Visible | NodeFlags.Enabled | NodeFlags.EmitsEvents;
-        imageNode->AtkResNode.DrawFlags = 0;
+        imageNode->AtkResNode.ViewFlags = 0;
         imageNode->WrapMode = 1;
         imageNode->Flags = 0;
 
@@ -56,7 +56,7 @@ internal static unsafe class NodeManager
         textNode->AtkResNode.Type = NodeType.Text;
         textNode->AtkResNode.NodeID = nodeId;
         textNode->AtkResNode.NodeFlags = NodeFlags.AnchorLeft | NodeFlags.AnchorTop | NodeFlags.Visible | NodeFlags.Enabled | NodeFlags.EmitsEvents;
-        textNode->AtkResNode.DrawFlags = 0;
+        textNode->AtkResNode.ViewFlags = 0;
 
         textNode->AtkResNode.ToggleVisibility(false);
 
