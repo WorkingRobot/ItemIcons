@@ -6,7 +6,7 @@ namespace ItemIcons.IconProviders;
 
 internal sealed class MogStation : SingleIconProvider
 {
-    public override string Name => "Mog Station";
+    public static string Name => "Mog Station";
 
     public override BaseIcon Icon => new TextureIcon("ui/uld/LetterList3.tex", new(0, 0, 32, 32));
 

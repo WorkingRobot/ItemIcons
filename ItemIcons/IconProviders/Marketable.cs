@@ -4,7 +4,7 @@ namespace ItemIcons.IconProviders;
 
 internal sealed class Marketable : SingleIconProvider
 {
-    public override string Name => "Marketable";
+    public static string Name => "Marketable";
 
     public override BaseIcon Icon => new TextureIcon(65002);
 

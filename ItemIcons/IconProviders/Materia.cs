@@ -7,7 +7,7 @@ namespace ItemIcons.IconProviders;
 
 internal sealed class Materia : IconProvider
 {
-    public override string Name => "Materia Type (Icons)";
+    public static string Name => "Materia Type (Icons)";
 
     private uint IdOffset { get; }
 

@@ -6,7 +6,7 @@ namespace ItemIcons.IconProviders;
 
 internal sealed class Tradeable : SingleIconProvider
 {
-    public override string Name => "Tradeable";
+    public static string Name => "Tradeable";
 
     public override BaseIcon Icon => new TextureIcon(60935) { Scale = 1.75f, Offset = -8 };
 

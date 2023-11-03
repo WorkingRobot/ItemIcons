@@ -6,7 +6,7 @@ namespace ItemIcons.IconProviders;
 
 internal sealed class Furniture : SingleIconProvider
 {
-    public override string Name => "Furniture";
+    public static string Name => "Furniture";
 
     public override BaseIcon Icon => new TextureIcon(60752) { Scale = 1.5f, Offset = -6};
 

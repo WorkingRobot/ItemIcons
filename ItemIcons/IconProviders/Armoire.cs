@@ -7,7 +7,7 @@ namespace ItemIcons.IconProviders;
 
 internal sealed class Armoire : IconProvider
 {
-    public override string Name => "Armoire (Icons)";
+    public static string Name => "Armoire (Icons)";
 
     private uint IdOffset { get; }
 

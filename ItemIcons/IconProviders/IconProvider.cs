@@ -1,18 +1,18 @@
+using ItemIcons.Config;
 using ItemIcons.IconTypes;
-using ItemIcons.ItemProviders;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ItemIcons.IconProviders;
 
 public abstract unsafe class IconProvider
 {
-    public abstract string Name { get; }
-
     public abstract uint? GetMatch(Item item);
 
     private static readonly uint IdOffset = (uint)Random.Shared.Next(1000000);
     private static readonly List<BaseIcon> IdRegistry = new();
+
     protected static uint RegisterIcons(IEnumerable<BaseIcon> icons)
     {
         var ret = (uint)IdRegistry.Count + IdOffset;

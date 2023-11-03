@@ -9,7 +9,7 @@ namespace ItemIcons.IconProviders;
 
 internal sealed class ArmoryJob : IconProvider
 {
-    public override string Name => "Equippable Jobs";
+    public static string Name => "Equippable Jobs";
 
     private uint IdOffset { get; }
 

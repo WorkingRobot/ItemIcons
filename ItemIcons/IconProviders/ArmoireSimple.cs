@@ -6,7 +6,7 @@ namespace ItemIcons.IconProviders;
 
 internal sealed class ArmoireSimple : SingleIconProvider
 {
-    public override string Name => "Armoire (Simple)";
+    public static string Name => "Armoire (Simple)";
 
     public override BaseIcon Icon => new TextureIcon("ui/uld/ItemDetailPutIn.tex", new(36, 18, 18, 18));
 

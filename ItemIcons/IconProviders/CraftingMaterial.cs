@@ -6,7 +6,7 @@ namespace ItemIcons.IconProviders;
 
 internal sealed class CraftingMaterial : SingleIconProvider
 {
-    public override string Name => "Crafting Material";
+    public static string Name => "Crafting Material";
 
     public override BaseIcon Icon => new TextureIcon("ui/uld/ToggleButton.tex", new(104, 39, 18, 18)) { Scale = 1.5f, Offset = -6 };
 

@@ -8,7 +8,7 @@ namespace ItemIcons.IconProviders;
 
 internal sealed class Obtained : SingleIconProvider
 {
-    public override string Name => "Obtained";
+    public static string Name => "Obtained";
 
     public override BaseIcon Icon => new TextureIcon("ui/uld/RecipeNoteBook.tex", new(64, 30, 20, 20));
 
