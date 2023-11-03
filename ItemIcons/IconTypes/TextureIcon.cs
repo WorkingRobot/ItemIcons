@@ -7,7 +7,7 @@ using System;
 
 namespace ItemIcons.IconTypes;
 
-internal sealed record TextureIcon : BaseIcon
+internal sealed record TextureIcon : BaseIcon, IEquatable<TextureIcon>
 {
     public string Texture { get; }
     public UldRect? Rect { get; }
@@ -166,4 +166,17 @@ internal sealed record TextureIcon : BaseIcon
         if (PartsListPtr != nint.Zero)
             IMemorySpace.Free(PartsList);
     }
+
+    public bool Equals(TextureIcon? icon)
+    {
+        if (icon is null)
+            return false;
+
+        return base.Equals(icon) &&
+            Texture == icon.Texture &&
+            Rect == icon.Rect;
+    }
+
+    public override int GetHashCode() =>
+        HashCode.Combine(base.GetHashCode(), Texture, Rect);
 }

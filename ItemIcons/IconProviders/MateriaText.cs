@@ -1,9 +1,6 @@
-using Dalamud.Utility;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using ItemIcons.IconTypes;
-using ItemIcons.Utils;
 using System.Collections.Generic;
-using System.Numerics;
 
 namespace ItemIcons.IconProviders;
 
@@ -11,7 +8,7 @@ internal sealed class MateriaText : IconProvider
 {
     public override string Name => "Materia Type (Text)";
 
-    private uint IdOffset { get; }
+    public override string Description => "Shows the specific stat increase that a materia will provide.";
 
     public readonly Dictionary<uint, int> MateriaToIconId = new();
 
@@ -44,10 +41,9 @@ internal sealed class MateriaText : IconProvider
         [73] = "PERC"
     };
 
-    public readonly List<BaseIcon> Icons = new();
-
     public MateriaText()
     {
+        var icons = new List<BaseIcon>();
         foreach (var materia in LuminaSheets.MateriaSheet)
         {
             if (!ParamAbbreviations.TryGetValue(materia.BaseParam.Row, out var abbreviation))
@@ -62,7 +58,7 @@ internal sealed class MateriaText : IconProvider
                 var increase = materia.Value[i];
                 if (increase == 0)
                     continue;
-                Icons.Add(new TextIcon()
+                icons.Add(new TextIcon()
                 {
                     Text = $"{abbreviation}\n+{increase}",
                     FontSize = 9,
@@ -71,12 +67,12 @@ internal sealed class MateriaText : IconProvider
                     Flags = TextFlags.Glare | TextFlags.WordWrap | TextFlags.MultiLine | TextFlags.Edge,
                     Offset = 9,
                 });
-                MateriaToIconId.TryAdd(item.Row, Icons.Count - 1);
+                MateriaToIconId.TryAdd(item.Row, icons.Count - 1);
             }
         }
 
-        IdOffset = RegisterIcons(Icons);
-        Log.Debug($"Registering {GetType().Name} to {IdOffset}");
+        Icons = icons;
+        RegisterIcons();
     }
 
     public override uint? GetMatch(Item item)
@@ -88,5 +84,5 @@ internal sealed class MateriaText : IconProvider
     }
 
     private uint ResolveIconId(int iconId) =>
-        (uint)(IdOffset + iconId);
+        (uint)(IconOffset + iconId);
 }

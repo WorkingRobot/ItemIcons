@@ -11,7 +11,7 @@ internal sealed class ArmoryJob : IconProvider
 {
     public override string Name => "Equippable Jobs";
 
-    private uint IdOffset { get; }
+    public override string Description => "Shows the jobs that can equip an item.";
 
     public readonly record struct IconDescriptor(float Scale, short Offset);
     public readonly record struct TextureDescriptor(string Texture, UldRect? Rect);
@@ -334,15 +334,15 @@ internal sealed class ArmoryJob : IconProvider
                 icons[i] = icon;
         }
         displayedCategories = CategoryIcons.Keys.ToImmutableSortedSet();
-        IdOffset = RegisterIcons(icons);
-        Log.Debug($"Registering {GetType().Name} to {IdOffset}");
+        Icons = icons;
+        RegisterIcons();
     }
 
     public override uint? GetMatch(Item item)
     {
         var row = item.LuminaRow.ClassJobCategory.Row;
         if (displayedCategories.Contains(row))
-            return IdOffset + row;
+            return IconOffset + row;
         return null;
     }
 }

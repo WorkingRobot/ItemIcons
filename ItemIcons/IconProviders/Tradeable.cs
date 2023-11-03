@@ -8,6 +8,8 @@ internal sealed class Tradeable : SingleIconProvider
 {
     public override string Name => "Tradeable";
 
+    public override string Description => "Shows an icon on items that can be traded to other players.";
+
     public override BaseIcon Icon => new TextureIcon(60935) { Scale = 1.75f, Offset = -8 };
 
     private readonly ImmutableSortedSet<uint> tradeableItems;

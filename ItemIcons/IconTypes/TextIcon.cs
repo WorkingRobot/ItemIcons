@@ -79,4 +79,25 @@ internal sealed record TextIcon : BaseIcon
         NodeUtils.SetVisibility(&node->AtkResNode, true);
         icon.UpdateDirtyNode(&node->AtkResNode);
     }
+
+    public bool Equals(TextIcon? icon)
+    {
+        if (icon is null)
+            return false;
+
+        return base.Equals(icon) &&
+            Text == icon.Text &&
+            FontSize == icon.FontSize &&
+            LineSpacing == icon.LineSpacing &&
+            FontType == icon.FontType &&
+            TextColor == icon.TextColor &&
+            EdgeColor == icon.EdgeColor &&
+            BackgroundColor == icon.BackgroundColor &&
+            Alignment == icon.Alignment &&
+            Flags == icon.Flags &&
+            Flags2 == icon.Flags2;
+    }
+
+    public override int GetHashCode() =>
+        HashCode.Combine(HashCode.Combine(base.GetHashCode(), Text, FontSize, LineSpacing, FontType, TextColor), EdgeColor, BackgroundColor, Alignment, Flags, Flags2);
 }

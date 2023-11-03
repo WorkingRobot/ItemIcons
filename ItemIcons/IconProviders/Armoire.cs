@@ -9,7 +9,7 @@ internal sealed class Armoire : IconProvider
 {
     public override string Name => "Armoire (Icons)";
 
-    private uint IdOffset { get; }
+    public override string Description => "Shows the specific Armoire category that an item can be stored in.";
 
     private readonly Dictionary<uint, int> categoryLut = new();
 
@@ -25,14 +25,14 @@ internal sealed class Armoire : IconProvider
             icons[i] = new TextureIcon((uint)category.Icon);
         }
 
-        IdOffset = RegisterIcons(icons);
-        Log.Debug($"Registering {GetType().Name} to {IdOffset}");
+        Icons = icons;
+        RegisterIcons();
     }
 
     public override uint? GetMatch(Item item)
     {
         if (categoryLut.TryGetValue(item.ItemId, out var categoryIdx))
-            return (uint)(IdOffset + categoryIdx);
+            return (uint)(IconOffset + categoryIdx);
         return null;
     }
 }

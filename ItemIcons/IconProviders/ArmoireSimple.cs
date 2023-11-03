@@ -8,6 +8,8 @@ internal sealed class ArmoireSimple : SingleIconProvider
 {
     public override string Name => "Armoire (Simple)";
 
+    public override string Description => "Shows an icon on items that can be stored in the Armoire.";
+
     public override BaseIcon Icon => new TextureIcon("ui/uld/ItemDetailPutIn.tex", new(36, 18, 18, 18));
 
     private readonly ImmutableSortedSet<uint> armoireItems;

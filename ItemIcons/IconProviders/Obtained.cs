@@ -10,6 +10,8 @@ internal sealed class Obtained : SingleIconProvider
 {
     public override string Name => "Obtained";
 
+    public override string Description => "Shows an icon on items that are already obtained.";
+
     public override BaseIcon Icon => new TextureIcon("ui/uld/RecipeNoteBook.tex", new(64, 30, 20, 20));
 
     private readonly HashSet<uint> unobtainableItems = new();

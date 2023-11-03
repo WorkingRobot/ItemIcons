@@ -71,7 +71,7 @@ public static class ItemProviderExtensions
     public static string ToName(this ItemProviderCategory type) => type switch
     {
         ItemProviderCategory.Inventory => "Inventory",
-        ItemProviderCategory.ArmouryBoard => "Armoury Board",
+        ItemProviderCategory.ArmouryBoard => "Armoury Chest",
         ItemProviderCategory.Character => "Equipment",
         ItemProviderCategory.Saddlebag => "Saddlebag",
         ItemProviderCategory.RetainerInventory => "Retainer Inventory",
@@ -80,7 +80,7 @@ public static class ItemProviderExtensions
         ItemProviderCategory.MiragePlate => "Glamour Plate",
         ItemProviderCategory.RetainerCharacter => "Retainer Equipment",
         ItemProviderCategory.RetainerVenture => "Retainer Venture",
-        ItemProviderCategory.Loot => "Loot",
+        ItemProviderCategory.Loot => "Duty Loot",
         _ => "Unknown"
     };
 }
