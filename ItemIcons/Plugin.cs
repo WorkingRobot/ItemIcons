@@ -8,6 +8,7 @@ using ItemIcons.Windows;
 using System;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using ItemIcons.Utils;
+using System.Reflection;
 
 namespace ItemIcons;
 
@@ -40,7 +41,15 @@ public sealed class Plugin : IDalamudPlugin
     {
         Service.Plugin = this;
         pluginInterface.Create<Service>();
-        Service.Configuration = pluginInterface.GetPluginConfig() as Configuration ?? new();
+        try
+        {
+            Service.Configuration = pluginInterface.GetPluginConfig() as Configuration ?? new();
+        }
+        catch (TargetInvocationException ex)
+        {
+            Log.Error(ex.InnerException!, "Error while loading config. Using default config.");
+            Service.Configuration = new();
+        }
         
         WindowSystem = new();
 

@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using ItemIcons.IconProviders;
-using RetainerTaskResult = ItemIcons.ItemProviders.RetainerTaskResult;
 using Dalamud.Memory;
 using ItemIcons.AtkIcons;
 using ItemIcons.Utils;
@@ -15,41 +14,19 @@ public sealed unsafe class IconRenderer : IDisposable
 {
     private static Configuration Config => Service.Configuration;
 
-    public BaseItemProvider[] ItemProviders { get; } = new BaseItemProvider[] {
-        new Character(),
-        new ArmouryBoard(),
-        new Inventory(),
-        new InventoryLarge(),
-        new InventoryExpansion(),
-        new MiragePrismPrismBox(),
-        new MiragePrismMiragePlate(),
-        new InventoryBuddy(),
-        new InventoryBuddy2(),
-        new InventoryRetainer(),
-        new InventoryRetainerLarge(),
-        new RetainerCharacter(),
-        new RetainerTaskResult(),
-        new MiragePrismPrismItemDetail(),
-        new ItemDetail(),
-        new NeedGreed(),
-    };
+    public BaseItemProvider[] ItemProviders { get; } =
+        typeof(BaseItemProvider).Assembly.GetTypes()
+            .Where(t => !t.IsAbstract && !t.IsGenericType && t.IsAssignableTo(typeof(BaseItemProvider)))
+            .Select(t => Activator.CreateInstance(t) as BaseItemProvider ??
+                throw new ArgumentException($"Failed to create {t}"))
+            .ToArray();
 
-    public IconProvider[] IconProviders { get; } = new IconProvider[]
-    {
-        new ArmoryJob(),
-        new Obtained(),
-        new MogStation(),
-        new VendorItem(),
-        new CraftingMaterial(),
-        new ArmoireSimple(),
-        new Armoire(),
-        new Reduction(),
-        new Materia(),
-        new HighQuality(),
-        new Furniture(),
-        new Tradeable(),
-        new Marketable(),
-    };
+    public IconProvider[] IconProviders { get; } =
+        typeof(IconProvider).Assembly.GetTypes()
+            .Where(t => !t.IsAbstract && !t.IsGenericType && t.IsAssignableTo(typeof(IconProvider)))
+            .Select(t => Activator.CreateInstance(t) as IconProvider ??
+                throw new ArgumentException($"Failed to create {t}"))
+            .ToArray();
 
     private readonly Dictionary<string, AtkItemIcon[]> addons = new();
 
