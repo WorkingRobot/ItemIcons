@@ -29,7 +29,7 @@ public abstract unsafe class AtkItemIcon
         // 0x2 = AreChildrenDirty
         // 0x4 = IsTransformDirty
         // 0x8 = AreChildrenTransformDirty
-        node->ViewFlags |= (NodeViewFlags)0x5;
+        node->DrawFlags |= 0x5;
     }
 
     public void SetIcons(ReadOnlySpan<uint> iconIds, ulong msTimestamp)
