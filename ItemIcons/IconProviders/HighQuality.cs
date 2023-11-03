@@ -6,7 +6,9 @@ internal sealed class HighQuality : SingleIconProvider
 {
     public override string Name => "High Quality";
 
-    public override BaseIcon Icon => new TextureIcon("ui/uld/Synthesis_hr1.tex", new(0, 240, 36, 36));
+    public override string Description => "Shows an HQ icon on HQ items.";
+
+    public override BaseIcon Icon => new TextureIcon("ui/uld/Synthesis.tex", new(0, 120, 18, 18));
 
     public override bool Matches(Item item) =>
         item.IsHq;

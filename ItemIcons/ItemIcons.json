@@ -4,7 +4,6 @@
     "Punchline": "Works perfectly out of the box! Use /ii to configure.",
     "Description": "Display custom icons for items for easier inventory mangement.",
     "RepoUrl": "https://github.com/WorkingRobot/ItemIcons",
-    "InternalName": "ItemIcons",
     "ApplicableVersion": "any",
     "Tags": [
         "icon",

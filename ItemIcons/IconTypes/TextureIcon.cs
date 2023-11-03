@@ -7,7 +7,7 @@ using System;
 
 namespace ItemIcons.IconTypes;
 
-internal sealed record TextureIcon : BaseIcon
+internal sealed record TextureIcon : BaseIcon, IEquatable<TextureIcon>
 {
     public string Texture { get; }
     public UldRect? Rect { get; }
@@ -23,9 +23,18 @@ internal sealed record TextureIcon : BaseIcon
     private unsafe AtkUldPart* Part => (AtkUldPart*)PartPtr;
     private unsafe AtkUldPartsList* PartsList => (AtkUldPartsList*)PartsListPtr;
 
-    public override unsafe uint IconId { set { if (AssetPtr != nint.Zero) Asset->Id = value; } }
+    public override unsafe uint IconId
+    {
+        get => AssetPtr != nint.Zero ? Asset->Id : 0;
+        set
+        {
+            if (AssetPtr != nint.Zero)
+                Asset->Id = value;
+        }
+    }
 
-    public override unsafe float Scale {
+    public override unsafe float Scale
+    {
         get => base.Scale;
         init
         {
@@ -36,12 +45,8 @@ internal sealed record TextureIcon : BaseIcon
 
     private unsafe TextureIcon(string texture, uint? iconId, UldRect? rect)
     {
-        if (texture.EndsWith("_hr1.tex"))
-        {
-            texture = texture.Replace("_hr1.tex", ".tex");
-            if (rect != null)
-                rect = new UldRect((ushort)(rect.Value.U / 2), (ushort)(rect.Value.V / 2), (ushort)(rect.Value.Width / 2), (ushort)(rect.Value.Height / 2));
-        }
+        if (texture.Contains("_hr1"))
+            throw new ArgumentException("High res textures are unsupported");
 
         Texture = texture;
         Rect = rect;
@@ -99,7 +104,7 @@ internal sealed record TextureIcon : BaseIcon
 
     public TextureIcon(string texture, UldRect? rect = null) : this(texture, null, rect)
     {
-        
+
     }
 
     public TextureIcon(uint icon, UldRect? rect = null) : this(LookupIcon(icon), icon, rect)
@@ -129,7 +134,6 @@ internal sealed record TextureIcon : BaseIcon
         var node = usePrimary ? icon.ImageNode1 : icon.ImageNode2;
 
         node->AtkResNode.Color.A = alpha;
-        NodeUtils.SetVisibility(&node->AtkResNode, true);
 
         if (ApplyTextures(node))
         {
@@ -149,6 +153,7 @@ internal sealed record TextureIcon : BaseIcon
             node->AtkResNode.MultiplyBlue = (byte)MultiplyRGB.Z;
         }
 
+        NodeUtils.SetVisibility(&node->AtkResNode, true);
         icon.UpdateDirtyNode(&node->AtkResNode);
     }
 
@@ -161,4 +166,17 @@ internal sealed record TextureIcon : BaseIcon
         if (PartsListPtr != nint.Zero)
             IMemorySpace.Free(PartsList);
     }
+
+    public bool Equals(TextureIcon? icon)
+    {
+        if (icon is null)
+            return false;
+
+        return base.Equals(icon) &&
+            Texture == icon.Texture &&
+            Rect == icon.Rect;
+    }
+
+    public override int GetHashCode() =>
+        HashCode.Combine(base.GetHashCode(), Texture, Rect);
 }

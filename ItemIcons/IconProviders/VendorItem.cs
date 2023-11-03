@@ -8,6 +8,8 @@ internal sealed class VendorItem : SingleIconProvider
 {
     public override string Name => "Vendor Item";
 
+    public override string Description => "Shows an icon on items that can be traded with vendors to recieve other goodies. (e.g. EX totems, Cracked Dendroclusters, Irregular Tomestones, etc.))";
+
     public override BaseIcon Icon => new TextureIcon(60412) { Scale = 1.75f, Offset = -8 };
 
     private readonly ImmutableSortedSet<uint> vendorItems;

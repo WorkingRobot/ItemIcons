@@ -1,6 +1,7 @@
 using Dalamud.Configuration;
 using ItemIcons.IconProviders;
 using ItemIcons.ItemProviders;
+using ItemIcons.Utils;
 using System;
 using System.Collections.Generic;
 
@@ -23,20 +24,23 @@ public enum ItemProviderCategory
 }
 
 [Serializable]
-public class ItemProviderCategoryConfig
+public record ItemProviderCategoryConfig
 {
     public bool Enabled { get; set; } = true;
     public bool ShowOnlyOne { get; set; }
 
-    public Dictionary<string, bool> IconProviders { get; set; } = new();
+    public ValueEqualityDictionary<string, bool> IconProviders { get; set; } = new();
 }
 
 [Serializable]
-public class Configuration : IPluginConfiguration
+public record Configuration : IPluginConfiguration
 {
     public int Version { get; set; }
 
-    public Dictionary<ItemProviderCategory, ItemProviderCategoryConfig> ItemProviders { get; set; } = new();
+    public ValueEqualityDictionary<ItemProviderCategory, ItemProviderCategoryConfig> ItemProviders { get; set; } = new();
+    
+    // Global disable for a specific icon provider. If true, the ItemProvider must also have the icon provider as true
+    public ValueEqualityDictionary<string, bool> IconProviders { get; set; } = new();
 
     public bool IsItemProviderEnabled(BaseItemProvider provider) =>
         !ItemProviders.TryGetValue(provider.Category, out var config) || config.Enabled;
@@ -46,9 +50,13 @@ public class Configuration : IPluginConfiguration
 
     public bool CanItemProviderMatch(BaseItemProvider provider, IconProvider iconProvider)
     {
+        var iconName = iconProvider.GetType().FullName!;
+        if (!IconProviders.GetValueOrDefault(iconName, true))
+            return false;
+
         if (ItemProviders.TryGetValue(provider.Category, out var config))
         {
-            if (config.IconProviders.TryGetValue(iconProvider.GetType().FullName!, out var canMatch))
+            if (config.IconProviders.TryGetValue(iconName, out var canMatch))
                 return canMatch;
         }
         return true;
@@ -63,7 +71,7 @@ public static class ItemProviderExtensions
     public static string ToName(this ItemProviderCategory type) => type switch
     {
         ItemProviderCategory.Inventory => "Inventory",
-        ItemProviderCategory.ArmouryBoard => "Armoury Board",
+        ItemProviderCategory.ArmouryBoard => "Armoury Chest",
         ItemProviderCategory.Character => "Equipment",
         ItemProviderCategory.Saddlebag => "Saddlebag",
         ItemProviderCategory.RetainerInventory => "Retainer Inventory",
@@ -72,7 +80,7 @@ public static class ItemProviderExtensions
         ItemProviderCategory.MiragePlate => "Glamour Plate",
         ItemProviderCategory.RetainerCharacter => "Retainer Equipment",
         ItemProviderCategory.RetainerVenture => "Retainer Venture",
-        ItemProviderCategory.Loot => "Loot",
+        ItemProviderCategory.Loot => "Duty Loot",
         _ => "Unknown"
     };
 }

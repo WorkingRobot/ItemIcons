@@ -11,7 +11,7 @@ internal sealed class ArmoryJob : IconProvider
 {
     public override string Name => "Equippable Jobs";
 
-    private uint IdOffset { get; }
+    public override string Description => "Shows the jobs that can equip an item.";
 
     public readonly record struct IconDescriptor(float Scale, short Offset);
     public readonly record struct TextureDescriptor(string Texture, UldRect? Rect);
@@ -55,9 +55,12 @@ internal sealed class ArmoryJob : IconProvider
             }
         }
 
+        public BaseIcon? TryGet(int index) =>
+            icons.Length > index ? icons[index] : null;
+
         public BaseIcon this[int index] =>
-            (icons.Length > index ? icons[index] : null) ??
-            throw new ArgumentOutOfRangeException(nameof(index), index, "No icon at that index");
+            TryGet(index) ??
+                throw new ArgumentOutOfRangeException(nameof(index), index, "No icon at that index");
 
         public int Count => icons.Length;
     }
@@ -156,12 +159,12 @@ internal sealed class ArmoryJob : IconProvider
     // Icons
     public IconSet RoleSetIcons { get; } = new(new TextureDescriptor?[]
     {
-        new("ui/uld/LFG_hr1.tex", new(168, 216, 56, 56)), // All
-        new("ui/uld/LFG_hr1.tex", new(0, 216, 56, 56)), // Tank
-        new("ui/uld/LFG_hr1.tex", new(56, 216, 56, 56)), // Healer
-        new("ui/uld/LFG_hr1.tex", new(112, 216, 56, 56)), // DPS
-        new("ui/uld/LFG_hr1.tex", new(0, 576, 56, 56)), // Crafter
-        new("ui/uld/LFG_hr1.tex", new(56, 576, 56, 56)), // Gatherer
+        new("ui/uld/LFG.tex", new(84, 108, 28, 28)), // All
+        new("ui/uld/LFG.tex", new(0, 108, 28, 28)), // Tank
+        new("ui/uld/LFG.tex", new(28, 108, 28, 28)), // Healer
+        new("ui/uld/LFG.tex", new(56, 108, 28, 28)), // DPS
+        new("ui/uld/LFG.tex", new(0, 288, 28, 28)), // Crafter
+        new("ui/uld/LFG.tex", new(28, 288, 28, 28)), // Gatherer
         null, // Pure Healer
         null, // Shield Healer
         null, // Melee
@@ -177,12 +180,12 @@ internal sealed class ArmoryJob : IconProvider
     // Icons with square background
     public IconSet RoleSetSquare { get; } = new(new TextureDescriptor?[]
     {
-        new("ui/uld/LFG_hr1.tex", new(168, 160, 56, 56)), // All
-        new("ui/uld/LFG_hr1.tex", new(0, 160, 56, 56)), // Tank
-        new("ui/uld/LFG_hr1.tex", new(56, 160, 56, 56)), // Healer
-        new("ui/uld/LFG_hr1.tex", new(112, 160, 56, 56)), // DPS
-        new("ui/uld/LFG_hr1.tex", new(112, 576, 56, 56)), // Crafter
-        new("ui/uld/LFG_hr1.tex", new(168, 576, 56, 56)), // Gatherer
+        new("ui/uld/LFG.tex", new(84, 80, 28, 28)), // All
+        new("ui/uld/LFG.tex", new(0, 80, 28, 28)), // Tank
+        new("ui/uld/LFG.tex", new(28, 80, 28, 28)), // Healer
+        new("ui/uld/LFG.tex", new(56, 80, 28, 28)), // DPS
+        new("ui/uld/LFG.tex", new(56, 288, 28, 28)), // Crafter
+        new("ui/uld/LFG.tex", new(84, 288, 28, 28)), // Gatherer
         null, // Pure Healer
         null, // Shield Healer
         null, // Melee
@@ -199,16 +202,16 @@ internal sealed class ArmoryJob : IconProvider
     public IconSet RoleSetRounded { get; } = new(new TextureDescriptor?[]
     {
         null, // All
-        new("ui/uld/LFGSelectRole_hr1.tex", new(0, 56, 56, 56)), // Tank
-        new("ui/uld/LFGSelectRole_hr1.tex", new(56, 56, 56, 56)), // Healer
-        new("ui/uld/LFGSelectRole_hr1.tex", new(112, 56, 56, 56)), // DPS
+        new("ui/uld/LFGSelectRole.tex", new(0, 28, 28, 28)), // Tank
+        new("ui/uld/LFGSelectRole.tex", new(28, 28, 28, 28)), // Healer
+        new("ui/uld/LFGSelectRole.tex", new(56, 28, 28, 28)), // DPS
         null, // Crafter
         null, // Gatherer
-        new("ui/uld/LFGSelectRole_hr1.tex", new(0, 112, 56, 56)), // Pure Healer
-        new("ui/uld/LFGSelectRole_hr1.tex", new(56, 112, 56, 56)), // Shield Healer
-        new("ui/uld/LFGSelectRole_hr1.tex", new(0, 0, 56, 56)), // Melee
-        new("ui/uld/LFGSelectRole_hr1.tex", new(56, 0, 56, 56)), // Ranged
-        new("ui/uld/LFGSelectRole_hr1.tex", new(112, 0, 56, 56)), // Caster
+        new("ui/uld/LFGSelectRole.tex", new(0, 56, 28, 28)), // Pure Healer
+        new("ui/uld/LFGSelectRole.tex", new(28, 56, 28, 28)), // Shield Healer
+        new("ui/uld/LFGSelectRole.tex", new(0, 0, 28, 28)), // Melee
+        new("ui/uld/LFGSelectRole.tex", new(28, 0, 28, 28)), // Ranged
+        new("ui/uld/LFGSelectRole.tex", new(56, 0, 28, 28)), // Caster
         null, // Tank/Healer
         null, // Tank/DPS
         null, // Healer/DPS
@@ -219,10 +222,10 @@ internal sealed class ArmoryJob : IconProvider
     // Mini rectangles
     public IconSet RoleSetMini { get; } = new(new TextureDescriptor?[]
     {
-        new("ui/uld/LFG2_hr1.tex", new(32, 40, 32, 40)), // All
-        new("ui/uld/LFG2_hr1.tex", new(0, 0, 32, 40)), // Tank
-        new("ui/uld/LFG2_hr1.tex", new(0, 40, 32, 40)), // Healer
-        new("ui/uld/LFG2_hr1.tex", new(32, 0, 32, 40)), // DPS
+        new("ui/uld/LFG2.tex", new(16, 20, 16, 20)), // All
+        new("ui/uld/LFG2.tex", new(0, 0, 16, 20)), // Tank
+        new("ui/uld/LFG2.tex", new(0, 20, 16, 20)), // Healer
+        new("ui/uld/LFG2.tex", new(16, 0, 16, 20)), // DPS
         null, // Crafter
         null, // Gatherer
         null, // Pure Healer
@@ -230,11 +233,11 @@ internal sealed class ArmoryJob : IconProvider
         null, // Melee
         null, // Ranged
         null, // Caster
-        new("ui/uld/LFG2_hr1.tex", new(64, 40, 32, 40)), // Tank/Healer
-        new("ui/uld/LFG2_hr1.tex", new(60, 0, 32, 40)), // Tank/DPS
-        new("ui/uld/LFG2_hr1.tex", new(96, 0, 32, 40)), // Healer/DPS
-        new("ui/uld/LFG2_hr1.tex", new(96, 40, 32, 40)), // DoM/DoW
-        new("ui/uld/LFG2_hr1.tex", new(0, 80, 32, 40)), // DoH/DoL
+        new("ui/uld/LFG2.tex", new(32, 20, 16, 20)), // Tank/Healer
+        new("ui/uld/LFG2.tex", new(32, 0, 16, 20)), // Tank/DPS
+        new("ui/uld/LFG2.tex", new(48, 0, 16, 20)), // Healer/DPS
+        new("ui/uld/LFG2.tex", new(48, 20, 16, 20)), // DoM/DoW
+        new("ui/uld/LFG2.tex", new(0, 40, 16, 20)), // DoH/DoL
     });
 
     private IconSet JobSetCrafter => JobSetYellow;
@@ -274,7 +277,7 @@ internal sealed class ArmoryJob : IconProvider
             [24] = JobSetRanged[22], // BRD
             [25] = JobSetHealer[23], // WHM
             [26] = JobSetCaster[24], // BLM
-            [28] = JobSetCaster[24], // SMN
+            [28] = JobSetCaster[26], // SMN
             [29] = JobSetHealer[27], // SCH
             [38] = JobSetTank[18], // GLA PLD
             [41] = JobSetMelee[19], // PGL MNK
@@ -282,7 +285,7 @@ internal sealed class ArmoryJob : IconProvider
             [47] = JobSetMelee[21], // LNC DRG
             [50] = JobSetRanged[22], // ARC BRD
             [53] = JobSetHealer[23], // CNJ WHM
-            [55] = JobSetCaster[25], // THM BLM
+            [55] = JobSetCaster[24], // THM BLM
             [69] = JobSetCaster[26], // ACN SMN
             [92] = JobSetMelee[29], // NIN
             [93] = JobSetMelee[29], // ROG NIN
@@ -299,8 +302,8 @@ internal sealed class ArmoryJob : IconProvider
             [181] = JobSetHealer[39], // SGE
 
             [1] = RoleSet[0], // All Classes
-            [30] = RoleSet[14], // Disciple of War
-            [31] = RoleSet[14], // Disciple of Magic
+            [30] = RoleSet[12], // Disciple of War
+            [31] = RoleSet[13], // Disciple of Magic
             [34] = RoleSet[14], // Disciples of War or Magic
 
             [32] = RoleSet[5], // Disciple of the Land
@@ -331,15 +334,15 @@ internal sealed class ArmoryJob : IconProvider
                 icons[i] = icon;
         }
         displayedCategories = CategoryIcons.Keys.ToImmutableSortedSet();
-        IdOffset = RegisterIcons(icons);
-        Log.Debug($"Registering {GetType().Name} to {IdOffset}");
+        Icons = icons;
+        RegisterIcons();
     }
 
     public override uint? GetMatch(Item item)
     {
         var row = item.LuminaRow.ClassJobCategory.Row;
         if (displayedCategories.Contains(row))
-            return IdOffset + row;
+            return IconOffset + row;
         return null;
     }
 }

@@ -20,7 +20,7 @@ public enum MiragePlateItemSlotType : byte
     Wrist,
     RingRight,
     RingLeft,
-    Empty = 0x0E
+    Empty = 14
 }
 
 internal sealed unsafe class MiragePrismMiragePlate : BaseItemProvider
@@ -53,7 +53,7 @@ internal sealed unsafe class MiragePrismMiragePlate : BaseItemProvider
         var slots = new Item?[12];
         foreach (var item in items)
         {
-            var slotIdx = (MiragePlateItemSlotType)item.EquipSlotCategory switch
+            var slotIdx = (MiragePlateItemSlotType)item.EquipType switch
             {
                 MiragePlateItemSlotType.Offhand => 0,
                 MiragePlateItemSlotType.Mainhand => 1,

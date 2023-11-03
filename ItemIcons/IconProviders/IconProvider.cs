@@ -1,5 +1,5 @@
 using ItemIcons.IconTypes;
-using ItemIcons.ItemProviders;
+using ItemIcons.Utils;
 using System;
 using System.Collections.Generic;
 
@@ -9,11 +9,23 @@ public abstract unsafe class IconProvider
 {
     public abstract string Name { get; }
 
+    public abstract string Description { get; }
+
+    public uint IconOffset { get; private set; }
+    public required IReadOnlyList<BaseIcon> Icons { get; init; }
+
     public abstract uint? GetMatch(Item item);
 
     private static readonly uint IdOffset = (uint)Random.Shared.Next(1000000);
     private static readonly List<BaseIcon> IdRegistry = new();
-    protected static uint RegisterIcons(IEnumerable<BaseIcon> icons)
+
+    protected void RegisterIcons()
+    {
+        IconOffset = RegisterIcons(Icons);
+        Log.Debug($"Registering {GetType().Name} to {IconOffset}");
+    }
+
+    private static uint RegisterIcons(IEnumerable<BaseIcon> icons)
     {
         var ret = (uint)IdRegistry.Count + IdOffset;
         IdRegistry.AddRange(icons);

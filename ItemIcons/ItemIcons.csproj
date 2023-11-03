@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Authors>Asriel Camora</Authors>
-    <Version>0.1.0.1</Version>
+    <Version>0.2.0.1</Version>
     <PackageProjectUrl>https://github.com/WorkingRobot/ItemIcons.git</PackageProjectUrl>
   </PropertyGroup>
 
@@ -64,9 +64,6 @@
       <HintPath>$(DalamudLibPath)Lumina.Excel.dll</HintPath>
       <Private>false</Private>
     </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Config\" />
   </ItemGroup>
 
 </Project>

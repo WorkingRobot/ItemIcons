@@ -1,5 +1,4 @@
 using ItemIcons.IconTypes;
-using ItemIcons.Utils;
 using System.Collections.Generic;
 using System.Numerics;
 
@@ -9,7 +8,7 @@ internal sealed class Materia : IconProvider
 {
     public override string Name => "Materia Type (Icons)";
 
-    private uint IdOffset { get; }
+    public override string Description => "Shows the stat that a materia increases. Icons for materia of a specific stat are identical regardless of its grade.";
 
     private readonly record struct ColorType(bool UseRedIcons, bool UseWhite, Vector3? Add, Vector3? Multiply);
 
@@ -82,8 +81,6 @@ internal sealed class Materia : IconProvider
 
     public readonly Dictionary<uint, int> MateriaToIconId = new();
 
-    public readonly List<BaseIcon> Icons = new();
-
     public Materia()
     {
         foreach(var materia in LuminaSheets.MateriaSheet)
@@ -98,6 +95,7 @@ internal sealed class Materia : IconProvider
             }
         }
 
+        var icons = new List<BaseIcon>();
         foreach(var color in Colors)
         {
             var iconSet = color.UseRedIcons ? IconsRed : IconsBlue;
@@ -111,11 +109,11 @@ internal sealed class Materia : IconProvider
                 multiply *= new Vector3(100);
 
             foreach (var icon in iconSet)
-                Icons.Add(new TextureIcon(icon.Texture, icon.Rect) { Scale = 4 / 3f, Offset = -3, AddRGB = add, MultiplyRGB = multiply });
+                icons.Add(new TextureIcon(icon.Texture, icon.Rect) { Scale = 4 / 3f, Offset = -3, AddRGB = add, MultiplyRGB = multiply });
         }
 
-        IdOffset = RegisterIcons(Icons);
-        Log.Debug($"Registering {GetType().Name} to {IdOffset}");
+        Icons = icons;
+        RegisterIcons();
     }
 
     public override uint? GetMatch(Item item)
@@ -127,5 +125,5 @@ internal sealed class Materia : IconProvider
     }
 
     private uint ResolveIconId(int iconId) =>
-        (uint)(IdOffset + iconId - 1);
+        (uint)(IconOffset + iconId - 1);
 }

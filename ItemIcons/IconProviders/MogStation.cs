@@ -8,7 +8,9 @@ internal sealed class MogStation : SingleIconProvider
 {
     public override string Name => "Mog Station";
 
-    public override BaseIcon Icon => new TextureIcon("ui/uld/LetterList3_hr1.tex", new(0, 0, 64, 64));
+    public override string Description => "Shows an icon on items that are available for purchase on the Mog Station.";
+
+    public override BaseIcon Icon => new TextureIcon("ui/uld/LetterList3.tex", new(0, 0, 32, 32));
 
     private readonly ImmutableSortedSet<uint> mogStationItems;
 

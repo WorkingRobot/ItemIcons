@@ -8,6 +8,7 @@ using ItemIcons.Windows;
 using System;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using ItemIcons.Utils;
+using System.Reflection;
 
 namespace ItemIcons;
 
@@ -17,6 +18,7 @@ public sealed class Plugin : IDalamudPlugin
 
     private Settings SettingsWindow { get; }
     public IconRenderer Renderer { get; }
+    public IconManager IconManager { get; }
 
     [Signature("E8 ?? ?? ?? ?? 8B 83 ?? ?? ?? ?? C1 E8 14", DetourName = nameof(AddonSetupDetour))]
     private readonly Hook<AddonSetupDelegate> addonSetupHook = null!;
@@ -31,25 +33,31 @@ public sealed class Plugin : IDalamudPlugin
     private readonly Hook<UIModuleUpdateDelegate> uiModuleUpdateHook = null!;
     private unsafe delegate bool UIModuleUpdateDelegate(UIModule* module, float frameDelta);
 
-    [Signature("48 89 5C 24 10 57 48 83 EC 20 8B 82 A0 00 00 00")]
-    public readonly AtkUldManagerUpdateNodeTransformDelegate atkUldManagerUpdateNodeTransform = null!;
-    public unsafe delegate void AtkUldManagerUpdateNodeTransformDelegate(AtkUldManager* manager, AtkResNode* node, AtkResNode* nodeParent);
-
-    [Signature("4C 8B CA 4D 85 C0 75 43")]
-    public readonly AtkUldManagerUpdateNodeColorsDelegate atkUldManagerUpdateNodeColors = null!;
-    public unsafe delegate void AtkUldManagerUpdateNodeColorsDelegate(AtkUldManager* manager, AtkResNode* node, AtkResNode* nodeParent);
+    [Signature("E8 ?? ?? ?? ?? 48 8B 45 28 48 8B CE")]
+    public readonly AtkUldManagerUpdateNodeTreeDelegate atkUldManagerUpdateNodeTree = null!;
+    public unsafe delegate void AtkUldManagerUpdateNodeTreeDelegate(AtkUldManager* manager, AtkResNode* node, AtkResNode* nodeParent, bool isShallowUpdate);
 
     public Plugin([RequiredVersion("1.0")] DalamudPluginInterface pluginInterface)
     {
         Service.Plugin = this;
         pluginInterface.Create<Service>();
-        Service.Configuration = pluginInterface.GetPluginConfig() as Configuration ?? new();
-        Service.CommandManager.AddHandler("/ii", new((a, b) => OpenSettingsWindow()) { HelpMessage = "Open the Item Icons settings window." });
+        try
+        {
+            Service.Configuration = pluginInterface.GetPluginConfig() as Configuration ?? new();
+        }
+        catch (TargetInvocationException ex)
+        {
+            Log.Error(ex.InnerException!, "Error while loading config. Using default config.");
+            Service.Configuration = new();
+        }
         
-        Renderer = new();
-
         WindowSystem = new();
+
+        Renderer = new();
         SettingsWindow = new();
+        IconManager = new();
+
+        Service.CommandManager.AddHandler("/ii", new((_, _) => OpenSettingsWindow()) { HelpMessage = "Open the Item Icons settings window." });
 
         Service.PluginInterface.UiBuilder.Draw += WindowSystem.Draw;
         Service.PluginInterface.UiBuilder.OpenConfigUi += OpenSettingsWindow;
@@ -69,11 +77,13 @@ public sealed class Plugin : IDalamudPlugin
         addonFinalizeHook?.Dispose();
 
         Service.PluginInterface.UiBuilder.Draw -= WindowSystem.Draw;
+
         Service.CommandManager.RemoveHandler("/ii");
 
         WindowSystem.RemoveAllWindows();
-        //IconProvider.DisposeRegistry(); Causes crashes atm
+        
         Renderer.Dispose();
+        IconManager.Dispose();
     }
 
     private unsafe void* AddonSetupDetour(AtkUnitBase* addon)
