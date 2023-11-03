@@ -13,7 +13,7 @@ public abstract record BaseIcon : IDisposable
     public Vector3 AddRGB { get; init; }
     public Vector3 MultiplyRGB { get; init; } = new(100);
 
-    public virtual uint IconId { set { } }
+    public virtual uint IconId { get; set; }
 
     public abstract void Apply(AtkItemIcon icon, bool usePrimary, byte alpha);
 

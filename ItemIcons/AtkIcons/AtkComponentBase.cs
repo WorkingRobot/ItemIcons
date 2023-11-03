@@ -36,21 +36,33 @@ internal abstract unsafe class AtkComponentBaseItemIcon : AtkItemIcon
             }
         }
 
-        if (TextNode == null)
+        if (TextNode1 == null)
         {
-            TextNode = NodeManager.GetTextNode(Component, TextNodeId);
-            if (TextNode == null)
+            TextNode1 = NodeManager.GetTextNode(Component, TextNode1Id);
+            if (TextNode1 == null)
             {
-                TextNode = NodeManager.CreateTextNode(TextNodeId);
-                NodeManager.AppendNodeTo(Component->OwnerNode, &TextNode->AtkResNode, &ImageNode2->AtkResNode);
+                TextNode1 = NodeManager.CreateTextNode(TextNode1Id);
+                NodeManager.AppendNodeTo(Component->OwnerNode, &TextNode1->AtkResNode, &ImageNode2->AtkResNode);
+            }
+        }
+
+        if (TextNode2 == null)
+        {
+            TextNode2 = NodeManager.GetTextNode(Component, TextNode2Id);
+            if (TextNode2 == null)
+            {
+                TextNode2 = NodeManager.CreateTextNode(TextNode2Id);
+                NodeManager.AppendNodeTo(Component->OwnerNode, &TextNode2->AtkResNode, &TextNode1->AtkResNode);
             }
         }
     }
 
     public override void Destroy()
     {
-        if (TextNode != null)
-            NodeManager.DestroyTextNode(TextNode, &Component->UldManager);
+        if (TextNode1 != null)
+            NodeManager.DestroyTextNode(TextNode1, &Component->UldManager);
+        if (TextNode2 != null)
+            NodeManager.DestroyTextNode(TextNode2, &Component->UldManager);
         if (ImageNode2 != null)
             NodeManager.DestroyImageNode(ImageNode2, &Component->UldManager, false);
         if (ImageNode1 != null)

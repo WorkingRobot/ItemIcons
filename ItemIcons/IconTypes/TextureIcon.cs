@@ -23,9 +23,18 @@ internal sealed record TextureIcon : BaseIcon
     private unsafe AtkUldPart* Part => (AtkUldPart*)PartPtr;
     private unsafe AtkUldPartsList* PartsList => (AtkUldPartsList*)PartsListPtr;
 
-    public override unsafe uint IconId { set { if (AssetPtr != nint.Zero) Asset->Id = value; } }
+    public override unsafe uint IconId
+    {
+        get => AssetPtr != nint.Zero ? Asset->Id : 0;
+        set
+        {
+            if (AssetPtr != nint.Zero)
+                Asset->Id = value;
+        }
+    }
 
-    public override unsafe float Scale {
+    public override unsafe float Scale
+    {
         get => base.Scale;
         init
         {
@@ -95,7 +104,7 @@ internal sealed record TextureIcon : BaseIcon
 
     public TextureIcon(string texture, UldRect? rect = null) : this(texture, null, rect)
     {
-        
+
     }
 
     public TextureIcon(uint icon, UldRect? rect = null) : this(LookupIcon(icon), icon, rect)
@@ -125,7 +134,6 @@ internal sealed record TextureIcon : BaseIcon
         var node = usePrimary ? icon.ImageNode1 : icon.ImageNode2;
 
         node->AtkResNode.Color.A = alpha;
-        NodeUtils.SetVisibility(&node->AtkResNode, true);
 
         if (ApplyTextures(node))
         {
@@ -145,6 +153,7 @@ internal sealed record TextureIcon : BaseIcon
             node->AtkResNode.MultiplyBlue = (byte)MultiplyRGB.Z;
         }
 
+        NodeUtils.SetVisibility(&node->AtkResNode, true);
         icon.UpdateDirtyNode(&node->AtkResNode);
     }
 

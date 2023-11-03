@@ -11,11 +11,13 @@ public abstract unsafe class AtkItemIcon
 
     protected const int ImageNode1Id = 1000;
     protected const int ImageNode2Id = 1001;
-    protected const int TextNodeId = 1002;
+    protected const int TextNode1Id = 1002;
+    protected const int TextNode2Id = 1003;
 
     public AtkImageNode* ImageNode1 { get; protected set; }
     public AtkImageNode* ImageNode2 { get; protected set; }
-    public AtkTextNode* TextNode { get; protected set; }
+    public AtkTextNode* TextNode1 { get; protected set; }
+    public AtkTextNode* TextNode2 { get; protected set; }
 
     public abstract void Setup();
 
@@ -48,10 +50,12 @@ public abstract unsafe class AtkItemIcon
         Setup();
         ImageNode1->AtkResNode.Color.A = 0;
         ImageNode2->AtkResNode.Color.A = 0;
-        TextNode->AtkResNode.Color.A = 0;
+        TextNode1->AtkResNode.Color.A = 0;
+        TextNode2->AtkResNode.Color.A = 0;
         NodeUtils.SetVisibility(&ImageNode1->AtkResNode, false);
         NodeUtils.SetVisibility(&ImageNode2->AtkResNode, false);
-        NodeUtils.SetVisibility(&TextNode->AtkResNode, false);
+        NodeUtils.SetVisibility(&TextNode1->AtkResNode, false);
+        NodeUtils.SetVisibility(&TextNode2->AtkResNode, false);
     }
 
     public static (bool IsPrimary, bool IsSecondary, byte Alpha) GetAlphaForIcon(int idx, int iconCount, ulong msTimestamp)
