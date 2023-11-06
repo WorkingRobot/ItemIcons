@@ -2,6 +2,7 @@ using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using FFXIVClientStructs.FFXIV.Component.Exd;
 using ItemIcons.IconTypes;
 using ItemIcons.Utils;
+using System;
 using System.Collections.Generic;
 
 namespace ItemIcons.IconProviders;
@@ -16,6 +17,9 @@ internal sealed class Obtained : SingleIconProvider
 
     private readonly HashSet<uint> unobtainableItems = new();
     private readonly HashSet<uint> obtainedItems = new();
+    private readonly Dictionary<uint, DateTimeOffset> unobtainedItems = new();
+
+    private static readonly TimeSpan UnobtainedExpirationTime = TimeSpan.FromSeconds(15);
 
     public override unsafe bool Matches(Item item) =>
         IsItemObtained(item.ItemId);
@@ -28,21 +32,20 @@ internal sealed class Obtained : SingleIconProvider
         return UIState.Instance()->IsItemActionUnlocked(itemExd);
     }
 
-    private unsafe bool IsItemObtained(uint itemId)
+    private bool IsItemObtained(uint itemId)
     {
         if (unobtainableItems.Contains(itemId))
             return false;
         if (obtainedItems.Contains(itemId))
             return true;
+        if (unobtainedItems.TryGetValue(itemId, out var time))
+        {
+            if (DateTimeOffset.UtcNow - time < UnobtainedExpirationTime)
+                return false;
+        }
         var ret = IsItemActionUnlocked(itemId);
         if (!ret.HasValue)
             return false;
-        // Unobtainable items
-        else if (ret == 4)
-        {
-            unobtainableItems.Add(itemId);
-            return false;
-        }
         // Already obtained items
         else if (ret == 1)
         {
@@ -51,7 +54,16 @@ internal sealed class Obtained : SingleIconProvider
         }
         // Unobtained items
         else if (ret == 2)
+        {
+            unobtainedItems[itemId] = DateTimeOffset.UtcNow;
             return false;
+        }
+        // Unobtainable items
+        else if (ret == 4)
+        {
+            unobtainableItems.Add(itemId);
+            return false;
+        }
         Log.Debug($"Unknown response: {itemId} -> {ret}");
         return false;
     }

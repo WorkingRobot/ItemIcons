@@ -6,11 +6,7 @@ using System.Linq;
 using ItemIcons.IconProviders;
 using Dalamud.Interface.Utility.Raii;
 using ItemIcons.IconTypes;
-using Dalamud.Utility;
 using System.Collections.Generic;
-using Dalamud.Plugin;
-using ItemIcons.Utils;
-using Dalamud.Interface;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using Dalamud.Interface.GameFonts;
 
@@ -307,7 +303,7 @@ public class Settings : Window
         }
         else
         {
-            ImGui.TextUnformatted($"UNK");
+            ImGui.TextUnformatted($"???");
             if (ImGui.IsItemHovered())
                 ImGui.SetTooltip($"Id: {icon?.IconId}\n{icon}");
         }
