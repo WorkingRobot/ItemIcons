@@ -1,4 +1,3 @@
-using Dalamud.Logging;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using ItemIcons.AtkIcons;
 using ItemIcons.Utils;
@@ -69,6 +68,16 @@ public abstract class BaseItemProvider : IDisposable
         var list = (AtkComponentList*)listComponent;
         var renderer = list->ItemRendererList[idx].AtkComponentListItemRenderer;
         return AtkItemIcon.Create(renderer);
+    }
+
+    public static unsafe AtkItemIcon GetCheckboxIcon(nint addon, uint nodeId) =>
+        AtkItemIcon.Create(GetCheckboxIcon((AtkUnitBase*)addon, nodeId));
+
+    public static unsafe AtkComponentIcon* GetCheckboxIcon(AtkUnitBase* addon, uint id)
+    {
+        var node = NodeUtils.GetAsAtkComponent<AtkComponentCheckBox>(addon->GetNodeById(id));
+        var iconNode = NodeUtils.GetAsAtkComponent<AtkComponentIcon>(NodeUtils.GetNodeById(&node->AtkComponentButton.AtkComponentBase, 31));
+        return iconNode;
     }
 
     public static unsafe AtkItemIcon GetButtonIcon(nint addon, uint nodeId) =>

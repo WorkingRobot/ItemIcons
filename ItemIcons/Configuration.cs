@@ -20,7 +20,7 @@ public enum ItemProviderCategory
     RetainerCharacter,
     RetainerVenture,
     Loot,
-    // Gathering, TODO
+    Gathering,
 }
 
 [Serializable]
@@ -81,6 +81,7 @@ public static class ItemProviderExtensions
         ItemProviderCategory.RetainerCharacter => "Retainer Equipment",
         ItemProviderCategory.RetainerVenture => "Retainer Venture",
         ItemProviderCategory.Loot => "Duty Loot",
+        ItemProviderCategory.Gathering => "Gathering",
         _ => "Unknown"
     };
 }
