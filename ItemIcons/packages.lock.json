@@ -18,6 +18,9 @@
         "resolved": "30.0.1",
         "contentHash": "rcZtgbWR+As4G3Vpgx0AMNmShGuQLFjkHAPIIflzrfkJCx8/AOd4m96ZRmiU1Wi39qS5UVjV0P8qdgqOo5Cwyg=="
       },
+      "dalamud.contextmenu": {
+        "type": "Project"
+      },
       "luminasupplemental.excel": {
         "type": "Project",
         "dependencies": {

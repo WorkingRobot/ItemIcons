@@ -34,6 +34,7 @@
    </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="DalamudPackager" Version="2.1.12" />
+    <ProjectReference Include="..\Dalamud.ContextMenu\src\Dalamud.ContextMenu\Dalamud.ContextMenu.csproj" />
     <ProjectReference Include="..\LuminaSupplemental\src\LuminaSupplemental.Excel\LuminaSupplemental.Excel.csproj" />
     <Reference Include="FFXIVClientStructs">
       <HintPath>$(DalamudLibPath)FFXIVClientStructs.dll</HintPath>

@@ -1,3 +1,6 @@
 [submodule "LuminaSupplemental"]
 	path = LuminaSupplemental
 	url = https://github.com/WorkingRobot/LuminaSupplemental.git
+[submodule "Dalamud.ContextMenu"]
+	path = Dalamud.ContextMenu
+	url = https://github.com/kalilistic/Dalamud.ContextMenu.git

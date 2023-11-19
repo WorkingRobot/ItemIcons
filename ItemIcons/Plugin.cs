@@ -9,6 +9,8 @@ using System;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using ItemIcons.Utils;
 using System.Reflection;
+using Dalamud.ContextMenu;
+using ItemIcons.IconProviders;
 
 namespace ItemIcons;
 
@@ -19,6 +21,7 @@ public sealed class Plugin : IDalamudPlugin
     private Settings SettingsWindow { get; }
     public IconRenderer Renderer { get; }
     public IconManager IconManager { get; }
+    private DalamudContextMenu ContextMenu { get; }
 
     [Signature("E8 ?? ?? ?? ?? 8B 83 ?? ?? ?? ?? C1 E8 14", DetourName = nameof(AddonSetupDetour))]
     private readonly Hook<AddonSetupDelegate> addonSetupHook = null!;
@@ -57,6 +60,9 @@ public sealed class Plugin : IDalamudPlugin
         SettingsWindow = new();
         IconManager = new();
 
+        ContextMenu = new(pluginInterface);
+        ContextMenu.OnOpenInventoryContextMenu += OnOpenContextMenu;
+
         Service.CommandManager.AddHandler("/ii", new((_, _) => OpenSettingsWindow()) { HelpMessage = "Open the Item Icons settings window." });
 
         Service.PluginInterface.UiBuilder.Draw += WindowSystem.Draw;
@@ -84,6 +90,7 @@ public sealed class Plugin : IDalamudPlugin
         
         Renderer.Dispose();
         IconManager.Dispose();
+        ContextMenu.Dispose();
     }
 
     private unsafe void* AddonSetupDetour(AtkUnitBase* addon)
@@ -116,6 +123,16 @@ public sealed class Plugin : IDalamudPlugin
         {
             Log.Error(ex, "Error while drawing icons");
         }
+    }
+
+    public void OnOpenContextMenu(InventoryContextMenuOpenArgs args)
+    {
+        var item = new Item(args.ItemId);
+
+        if (item.ItemId == 0)
+            return;
+
+        args.AddCustomItem(Favorites.ContextMenuItem);
     }
 
     public void OpenSettingsWindow() =>

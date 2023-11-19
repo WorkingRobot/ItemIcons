@@ -42,6 +42,8 @@ public record Configuration : IPluginConfiguration
     // Global disable for a specific icon provider. If true, the ItemProvider must also have the icon provider as true
     public ValueEqualityDictionary<string, bool> IconProviders { get; set; } = new();
 
+    public ValueEqualityDictionary<uint, uint> FavoritedItems { get; set; } = new();
+
     public bool IsItemProviderEnabled(BaseItemProvider provider) =>
         !ItemProviders.TryGetValue(provider.Category, out var config) || config.Enabled;
 
