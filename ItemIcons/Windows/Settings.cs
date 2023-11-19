@@ -263,6 +263,9 @@ public class Settings : Window
     private static Dictionary<GameFontStyle, GameFontHandle> CachedFonts { get; } = new();
     private static void DrawIcon(BaseIcon? icon, Vector2 size)
     {
+        var pos = ImGui.GetCursorScreenPos();
+        var isHovered = ImGui.IsMouseHoveringRect(pos, pos + size);
+
         if (icon is TextureIcon { } texture)
         {
             var tex = Service.IconManager.GetTexture(texture.Texture);
@@ -276,7 +279,7 @@ public class Settings : Window
                 uv1 /= tex.Size;
             }
             ImGui.Image(tex.ImGuiHandle, size, uv0, uv1, new(texture.MultiplyRGB, 1));
-            if (ImGui.IsItemHovered())
+            if (isHovered)
                 ImGui.SetTooltip($"Id: {texture.IconId}\nScale: {texture.Scale}\nAddRGB: {texture.AddRGB}\nMultiplyRGB: {texture.MultiplyRGB}\nOffset: {texture.Offset}\nTexture: {texture.Texture}\nRect: {texture.Rect}");
         }
         else if (icon is TextIcon { } text)
@@ -298,13 +301,13 @@ public class Settings : Window
                 using var color = ImRaii.PushColor(ImGuiCol.Text, text.TextColor);
                 ImGui.TextUnformatted(text.Text);
             }
-            if (ImGui.IsItemHovered())
+            if (isHovered)
                 ImGui.SetTooltip($"Id: {text.IconId}\nScale: {text.Scale}\nAddRGB: {text.AddRGB}\nMultiplyRGB: {text.MultiplyRGB}\nOffset: {text.Offset}\nText: {text.Text}\nFont: {text.FontType} {text.FontSize}px\nLine Spacing: {text.LineSpacing}\nColors: ({text.TextColor}, {text.EdgeColor}, {text.BackgroundColor})\nAlignment: {text.Alignment}\nFlags: {text.Flags}; {text.Flags2}");
         }
         else
         {
             ImGui.TextUnformatted($"???");
-            if (ImGui.IsItemHovered())
+            if (isHovered)
                 ImGui.SetTooltip($"Id: {icon?.IconId}\n{icon}");
         }
     }
