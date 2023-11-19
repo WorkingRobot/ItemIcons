@@ -16,14 +16,12 @@ internal sealed unsafe class InventoryRetainer : BaseItemProvider
     public override IEnumerable<string> GetDrawnAddonNames(nint addon) =>
         new[] { "RetainerGrid" };
 
-    public override IEnumerable<AtkItemIcon> GetIcons(nint drawnAddon)
-    {
-        for (uint i = 3; i < 38; ++i)
-        {
-            yield return TryGetDragDropIcon(drawnAddon, i) ??
-                throw new ArgumentOutOfRangeException(nameof(drawnAddon), drawnAddon, "Could not get retainer's item icons. Try again next frame.");
-        }
-    }
+    public override IEnumerable<AtkItemIcon> GetIcons(nint drawnAddon) =>
+        Enumerable.Range(3, 35)
+            .Select(i =>
+                TryGetDragDropIcon(drawnAddon, (uint)i) ??
+                    throw new ArgumentOutOfRangeException(nameof(drawnAddon), drawnAddon, "Could not get retainer's item icons. Try again next frame.")
+            );
 
     private static int? GetSelectedInventoryPage(nint addon)
     {

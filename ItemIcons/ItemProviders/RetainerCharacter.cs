@@ -17,11 +17,8 @@ internal sealed unsafe class RetainerCharacter : BaseItemProvider
         137, 138, 139, 140, 142, 141, 143, 144, 145, 146, 147, 148 // No soul crystal
     };
 
-    public override IEnumerable<AtkItemIcon> GetIcons(nint drawnAddon)
-    {
-        foreach(var i in IconOrder)
-            yield return GetBaseDragDropIcon(drawnAddon, i);
-    }
+    public override IEnumerable<AtkItemIcon> GetIcons(nint drawnAddon) =>
+        IconOrder.Select(i => GetBaseDragDropIcon(drawnAddon, i));
 
     public override IEnumerable<Item?> GetItems(nint addon)
     {

@@ -16,11 +16,8 @@ internal sealed unsafe class Gathering : BaseItemProvider
         6, 7, 8, 9, 10, 11, 12, 13
     };
 
-    public override IEnumerable<AtkItemIcon> GetIcons(nint drawnAddon)
-    {
-        foreach (var i in IconOrder)
-            yield return GetCheckboxIcon(drawnAddon, i);
-    }
+    public override IEnumerable<AtkItemIcon> GetIcons(nint drawnAddon) =>
+        IconOrder.Select(i => GetCheckboxIcon(drawnAddon, i));
 
     public override IEnumerable<Item?> GetItems(nint addon)
     {

@@ -16,11 +16,8 @@ internal sealed unsafe class InventoryLarge : BaseItemProvider
     public override IEnumerable<string> GetDrawnAddonNames(nint addon) =>
         new[] { "InventoryGrid0", "InventoryGrid1" };
 
-    public override IEnumerable<AtkItemIcon> GetIcons(nint drawnAddon)
-    {
-        for (uint i = 3; i < 38; ++i)
-            yield return GetDragDropIcon(drawnAddon, i);
-    }
+    public override IEnumerable<AtkItemIcon> GetIcons(nint drawnAddon) =>
+        Enumerable.Range(3, 35).Select(i => GetDragDropIcon(drawnAddon, (uint)i));
 
     private static (int? PageA, int? PageB) GetSelectedInventoryTypes(nint addon)
     {

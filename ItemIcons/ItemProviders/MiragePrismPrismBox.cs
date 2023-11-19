@@ -1,6 +1,7 @@
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using ItemIcons.AtkIcons;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ItemIcons.ItemProviders;
 
@@ -10,11 +11,8 @@ internal sealed unsafe class MiragePrismPrismBox : BaseItemProvider
 
     public override string AddonName => "MiragePrismPrismBox";
 
-    public override IEnumerable<AtkItemIcon> GetIcons(nint drawnAddon)
-    {
-        for (uint i = 30; i < 80; ++i)
-            yield return GetButtonIcon(drawnAddon, i);
-    }
+    public override IEnumerable<AtkItemIcon> GetIcons(nint drawnAddon) =>
+        Enumerable.Range(30, 50).Select(i => GetButtonIcon(drawnAddon, (uint)i));
 
     private static nint? GetMirageData()
     {

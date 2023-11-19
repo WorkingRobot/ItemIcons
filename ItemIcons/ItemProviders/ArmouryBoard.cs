@@ -28,11 +28,8 @@ internal sealed unsafe class ArmouryBoard : BaseItemProvider
         [18] = ContainerType.ArmorySoulCrystal,
     };
 
-    public override IEnumerable<AtkItemIcon> GetIcons(nint drawnAddon)
-    {
-        for(uint i = 71; i < 121; ++i)
-            yield return GetDragDropIcon(drawnAddon, i);
-    }
+    public override IEnumerable<AtkItemIcon> GetIcons(nint drawnAddon) =>
+        Enumerable.Range(71, 50).Select(i => GetDragDropIcon(drawnAddon, (uint)i));
     
     private static ContainerType? GetSelectedInventoryType(nint addon)
     {

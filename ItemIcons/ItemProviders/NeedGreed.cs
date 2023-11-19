@@ -5,6 +5,7 @@ using FFXIVClientStructs.FFXIV.Component.GUI;
 using ItemIcons.AtkIcons;
 using ItemIcons.Utils;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ItemIcons.ItemProviders;
 
@@ -44,8 +45,7 @@ internal sealed unsafe class NeedGreed : BaseItemProvider
         var list = GetComponentList(drawnAddon);
         var length = GetListLength(list);
 
-        for (var i = 0; i < length; ++i)
-            yield return GetListIcon(list, i);
+        return Enumerable.Range(0, length).Select(i => GetListIcon(list, i));
     }
 
     private static nint GetComponentList(nint drawnAddon) =>
@@ -57,9 +57,6 @@ internal sealed unsafe class NeedGreed : BaseItemProvider
     private static LootItem GetLootItem(int idx) =>
         Loot.Instance()->ItemArraySpan[idx];
 
-    public override IEnumerable<Item?> GetItems(nint addon)
-    {
-        for (var i = 0; i < 16; ++i)
-            yield return new Item(GetLootItem(i).ItemId);
-    }
+    public override IEnumerable<Item?> GetItems(nint addon) =>
+        Enumerable.Range(0, 16).Select(i => (Item?)new Item(GetLootItem(i).ItemId));
 }

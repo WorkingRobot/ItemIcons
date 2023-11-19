@@ -12,13 +12,10 @@ internal sealed unsafe class InventoryBuddy2 : BaseItemProvider
 
     public override string AddonName => "InventoryBuddy2";
 
-    public override IEnumerable<AtkItemIcon> GetIcons(nint drawnAddon)
-    {
-        for (uint i = 10; i < 45; ++i)
-            yield return GetDragDropIcon(drawnAddon, i);
-        for (uint i = 46; i < 81; ++i)
-            yield return GetDragDropIcon(drawnAddon, i);
-    }
+    public override IEnumerable<AtkItemIcon> GetIcons(nint drawnAddon) =>
+        Enumerable.Range(10, 35)
+            .Concat(Enumerable.Range(46, 35))
+            .Select(i => GetDragDropIcon(drawnAddon, (uint)i));
 
     // 0 = left
     // 1 = right

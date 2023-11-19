@@ -17,11 +17,8 @@ internal sealed unsafe class CharacterInspect : BaseItemProvider
         12, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47
     };
 
-    public override IEnumerable<AtkItemIcon> GetIcons(nint drawnAddon)
-    {
-        foreach (var i in IconOrder)
-            yield return GetButtonIcon(drawnAddon, i);
-    }
+    public override IEnumerable<AtkItemIcon> GetIcons(nint drawnAddon) =>
+        IconOrder.Select(i => GetButtonIcon(drawnAddon, i));
 
     public override IEnumerable<Item?> GetItems(nint addon)
     {

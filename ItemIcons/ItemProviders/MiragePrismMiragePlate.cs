@@ -29,11 +29,8 @@ internal sealed unsafe class MiragePrismMiragePlate : BaseItemProvider
 
     public override string AddonName => "MiragePrismMiragePlate";
 
-    public override IEnumerable<AtkItemIcon> GetIcons(nint drawnAddon)
-    {
-        for (uint i = 63; i < 75; ++i)
-            yield return GetBaseButtonIcon(drawnAddon, i);
-    }
+    public override IEnumerable<AtkItemIcon> GetIcons(nint drawnAddon) =>
+        Enumerable.Range(63, 12).Select(i => GetBaseButtonIcon(drawnAddon, (uint)i));
 
     private static MiragePlateItem[]? GetMiragePlateItems()
     {
