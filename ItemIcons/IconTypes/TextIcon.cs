@@ -43,8 +43,8 @@ internal sealed record TextIcon : BaseIcon
             node->TextId = IconId;
             node->SetText(Text);
             node->SetAlignment(Alignment);
+            node->SetFont(FontType);
             node->FontSize = FontSize;
-            node->FontType = FontType;
             node->LineSpacing = LineSpacing;
             node->TextColor = GetByteColor(TextColor);
             node->EdgeColor = GetByteColor(EdgeColor);

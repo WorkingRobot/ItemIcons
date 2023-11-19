@@ -14,4 +14,5 @@ public static class LuminaSheets
     public static readonly ExcelSheet<SpecialShop> SpecialShopSheet = Service.DataManager.GetExcelSheet<SpecialShop>()!;
     public static readonly ExcelSheet<HousingFurniture> HousingFurnitureSheet = Service.DataManager.GetExcelSheet<HousingFurniture>()!;
     public static readonly ExcelSheet<Materia> MateriaSheet = Service.DataManager.GetExcelSheet<Materia>()!;
+    public static readonly ExcelSheet<ItemLevel> ItemLevelSheet = Service.DataManager.GetExcelSheet<ItemLevel>()!;
 }
