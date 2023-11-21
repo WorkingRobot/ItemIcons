@@ -1,5 +1,4 @@
 using ItemIcons.IconTypes;
-using ItemIcons.Utils;
 using System.Collections.Generic;
 using System.Linq;
 

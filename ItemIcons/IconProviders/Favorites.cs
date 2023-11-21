@@ -1,5 +1,3 @@
-using Dalamud.ContextMenu;
-using Dalamud.Game.Text;
 using Dalamud.Game.Text.SeStringHandling;
 using ItemIcons.IconTypes;
 using System.Linq;
@@ -14,38 +12,27 @@ internal sealed class Favorites : IconProvider
 
     private static readonly uint[] IconIds = new uint[]
     {
-        91152,
-        91669,
-        92150,
-        92651,
-        93067,
-        93599,
-        94167,
-        94600,
+        60651,
+        60652,
+        60653,
+        60654,
+        60655,
+        60656,
     };
-
-    public static readonly InventoryContextMenuItem ContextMenuItem;
-
-    static Favorites()
+    
+    public static readonly BitmapFontIcon[] BitmapIconIds = new BitmapFontIcon[]
     {
-        var b = new SeStringBuilder();
-        b.AddUiForeground(SeIconChar.BoxedLetterI.ToIconString(), 541);
-        b.AddText(" Favorite");
-        b.AddUiForegroundOff();
-        ContextMenuItem = new(b.Build(), a =>
-        {
-            var item = new Item(a.ItemId);
-            if (Service.Configuration.FavoritedItems.ContainsKey(item.ItemId))
-                Service.Configuration.FavoritedItems.Remove(item.ItemId);
-            else
-                Service.Configuration.FavoritedItems[item.ItemId] = 0;
-            Service.Configuration.Save();
-        });
-    }
+        BitmapFontIcon.ElementFire,
+        BitmapFontIcon.ElementIce,
+        BitmapFontIcon.ElementWind,
+        BitmapFontIcon.ElementEarth,
+        BitmapFontIcon.ElementLightning,
+        BitmapFontIcon.ElementWater,
+    };
 
     public Favorites()
     {
-        var icons = IconIds.Select(id => (BaseIcon)new TextureIcon(id) { Scale = 5 / 3f, Offset = -6 });
+        var icons = IconIds.Select(id => (BaseIcon)new TextureIcon(id) { Scale = 4 / 3f, Offset = -3 });
         Icons = icons.ToList();
         RegisterIcons();
     }

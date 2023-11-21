@@ -9,8 +9,9 @@ using System;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using ItemIcons.Utils;
 using System.Reflection;
-using Dalamud.ContextMenu;
 using ItemIcons.IconProviders;
+using System.Collections.Generic;
+using Dalamud.Game.Text.SeStringHandling;
 
 namespace ItemIcons;
 
@@ -21,7 +22,7 @@ public sealed class Plugin : IDalamudPlugin
     private Settings SettingsWindow { get; }
     public IconRenderer Renderer { get; }
     public IconManager IconManager { get; }
-    private DalamudContextMenu ContextMenu { get; }
+    private CtxMenu ContextMenu { get; }
 
     [Signature("E8 ?? ?? ?? ?? 8B 83 ?? ?? ?? ?? C1 E8 14", DetourName = nameof(AddonSetupDetour))]
     private readonly Hook<AddonSetupDelegate> addonSetupHook = null!;
@@ -60,8 +61,13 @@ public sealed class Plugin : IDalamudPlugin
         SettingsWindow = new();
         IconManager = new();
 
-        ContextMenu = new(pluginInterface);
-        ContextMenu.OnOpenInventoryContextMenu += OnOpenContextMenu;
+        ContextMenu = new();
+        ContextMenu.AddInventoryContextItem(new()
+        {
+            Name = CtxMenu.GetPrefixedName("Favorite", 'I', 541),
+            OnClicked = OpenFavoriteSubmenu,
+            IsSubmenu = true,
+        });
 
         Service.CommandManager.AddHandler("/ii", new((_, _) => OpenSettingsWindow()) { HelpMessage = "Open the Item Icons settings window." });
 
@@ -125,14 +131,49 @@ public sealed class Plugin : IDalamudPlugin
         }
     }
 
-    public void OnOpenContextMenu(InventoryContextMenuOpenArgs args)
+    private void OpenFavoriteSubmenu(MenuItemClickedArgs args)
     {
-        var item = new Item(args.ItemId);
+        var items = new List<MenuItem>();
+
+        var item = new Item(args.Item.ItemID);
 
         if (item.ItemId == 0)
-            return;
+            items.Add(new() { Name = "Invalid Item", OnClicked = _ => { }, IsEnabled = false });
+        else
+        {
+            var hasId = Service.Configuration.FavoritedItems.TryGetValue(item.ItemId, out var existingId);
+            Log.Debug($"{hasId} {existingId}");
+            BitmapFontIcon? favoritedIcon = hasId ? (existingId < Favorites.BitmapIconIds.Length ? Favorites.BitmapIconIds[existingId] : null) : null;
+            uint itemIdx = 0;
+            foreach(var icon in Favorites.BitmapIconIds)
+            {
+                var b = new SeStringBuilder();
+                if (favoritedIcon == icon)
+                    b.AddUiGlow(540);
+                b.AddText($"[{itemIdx}] ");
+                b.AddIcon(icon);
+                if (favoritedIcon == icon)
+                    b.AddUiGlowOff();
+                var idx = itemIdx;
+                items.Add(new()
+                {
+                    Name = b.Build(),
+                    OnClicked = _ => SetFavoriteForItem(item.ItemId, idx),
+                });
+                itemIdx++;
+            }
+        }
 
-        args.AddCustomItem(Favorites.ContextMenuItem);
+        args.OpenSubmenu(items);
+    }
+
+    private void SetFavoriteForItem(uint itemId, uint itemIdx)
+    {
+        if (Service.Configuration.FavoritedItems.TryGetValue(itemId, out var existingId) && existingId == itemIdx)
+            Service.Configuration.FavoritedItems.Remove(itemId);
+        else
+            Service.Configuration.FavoritedItems[itemId] = itemIdx;
+        Service.Configuration.Save();
     }
 
     public void OpenSettingsWindow() =>
