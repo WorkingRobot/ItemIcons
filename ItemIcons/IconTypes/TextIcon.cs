@@ -1,3 +1,4 @@
+using Dalamud.Game.Text.SeStringHandling;
 using FFXIVClientStructs.FFXIV.Client.Graphics;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using ItemIcons.AtkIcons;
@@ -9,7 +10,7 @@ namespace ItemIcons.IconTypes;
 
 internal sealed record TextIcon : BaseIcon
 {
-    public required string Text { get; init; }
+    public required SeString Text { get; init; }
     public byte FontSize { get; init; } = 12;
     public byte LineSpacing { get; init; } = 14;
     public FontType FontType { get; init; } = FontType.Axis;
@@ -41,7 +42,7 @@ internal sealed record TextIcon : BaseIcon
         if (node->TextId != IconId)
         {
             node->TextId = IconId;
-            node->SetText(Text);
+            node->SetText(Text.Encode());
             node->SetAlignment(Alignment);
             node->SetFont(FontType);
             node->FontSize = FontSize;

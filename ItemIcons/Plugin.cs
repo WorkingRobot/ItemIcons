@@ -12,6 +12,9 @@ using System.Reflection;
 using ItemIcons.IconProviders;
 using System.Collections.Generic;
 using Dalamud.Game.Text.SeStringHandling;
+using Dalamud.Game.Text;
+using System.Runtime.CompilerServices;
+using Dalamud.Memory;
 
 namespace ItemIcons;
 
@@ -66,6 +69,18 @@ public sealed class Plugin : IDalamudPlugin
         {
             Name = CtxMenu.GetPrefixedName("Favorite", 'I', 541),
             OnClicked = OpenFavoriteSubmenu,
+            IsSubmenu = true,
+        });
+        ContextMenu.AddDefaultContextItem(new()
+        {
+            Name = CtxMenu.GetPrefixedName("Favorite", SeIconChar.BoxedQuestionMark, 506),
+            OnClicked = args =>
+            {
+                args.OpenSubmenu(new MenuItem[]
+                {
+                    new() { Name = "Invalid Item", IsEnabled = false }
+                });
+            },
             IsSubmenu = true,
         });
 
@@ -142,18 +157,17 @@ public sealed class Plugin : IDalamudPlugin
         else
         {
             var hasId = Service.Configuration.FavoritedItems.TryGetValue(item.ItemId, out var existingId);
-            Log.Debug($"{hasId} {existingId}");
-            BitmapFontIcon? favoritedIcon = hasId ? (existingId < Favorites.BitmapIconIds.Length ? Favorites.BitmapIconIds[existingId] : null) : null;
+            BitmapFontIcon? favoritedIcon = hasId ? (existingId < Favorites.IconIds.Length ? Favorites.IconIds[existingId] : null) : null;
             uint itemIdx = 0;
-            foreach(var icon in Favorites.BitmapIconIds)
+            foreach(var icon in Favorites.IconIds)
             {
                 var b = new SeStringBuilder();
                 if (favoritedIcon == icon)
                     b.AddUiGlow(540);
                 b.AddText($"[{itemIdx}] ");
-                b.AddIcon(icon);
                 if (favoritedIcon == icon)
                     b.AddUiGlowOff();
+                b.AddIcon(icon);
                 var idx = itemIdx;
                 items.Add(new()
                 {

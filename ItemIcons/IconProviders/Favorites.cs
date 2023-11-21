@@ -1,4 +1,5 @@
 using Dalamud.Game.Text.SeStringHandling;
+using FFXIVClientStructs.FFXIV.Component.GUI;
 using ItemIcons.IconTypes;
 using System.Linq;
 
@@ -9,18 +10,8 @@ internal sealed class Favorites : IconProvider
     public override string Name => "Favorites";
 
     public override string Description => "User-selected favorites! Pick and choose which items you want to favorite! (Works based on the item, not the actual item stack or inventory slot)";
-
-    private static readonly uint[] IconIds = new uint[]
-    {
-        60651,
-        60652,
-        60653,
-        60654,
-        60655,
-        60656,
-    };
     
-    public static readonly BitmapFontIcon[] BitmapIconIds = new BitmapFontIcon[]
+    public static readonly BitmapFontIcon[] IconIds = new BitmapFontIcon[]
     {
         BitmapFontIcon.ElementFire,
         BitmapFontIcon.ElementIce,
@@ -32,7 +23,14 @@ internal sealed class Favorites : IconProvider
 
     public Favorites()
     {
-        var icons = IconIds.Select(id => (BaseIcon)new TextureIcon(id) { Scale = 4 / 3f, Offset = -3 });
+        var icons = IconIds.Select(id => (BaseIcon)new TextIcon()
+        {
+            Text = new SeStringBuilder().AddIcon(id).Build(),
+            FontSize = 16,
+            Alignment = AlignmentType.Center,
+            Offset = 9,
+            Flags = TextFlags.Glare | TextFlags.Edge
+        });
         Icons = icons.ToList();
         RegisterIcons();
     }

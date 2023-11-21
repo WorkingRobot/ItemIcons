@@ -299,7 +299,7 @@ public class Settings : Window
             {
                 using var imFont = ImRaii.PushFont(font.ImFont);
                 using var color = ImRaii.PushColor(ImGuiCol.Text, text.TextColor);
-                ImGui.TextUnformatted(text.Text);
+                ImGui.TextUnformatted(text.Text.TextValue);
             }
             if (isHovered)
                 ImGui.SetTooltip($"Id: {text.IconId}\nScale: {text.Scale}\nAddRGB: {text.AddRGB}\nMultiplyRGB: {text.MultiplyRGB}\nOffset: {text.Offset}\nText: {text.Text}\nFont: {text.FontType} {text.FontSize}px\nLine Spacing: {text.LineSpacing}\nColors: ({text.TextColor}, {text.EdgeColor}, {text.BackgroundColor})\nAlignment: {text.Alignment}\nFlags: {text.Flags}; {text.Flags2}");

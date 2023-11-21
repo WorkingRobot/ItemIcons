@@ -3,7 +3,6 @@ using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Hooking;
 using Dalamud.Memory;
 using Dalamud.Utility.Signatures;
-using FFXIVClientStructs.Attributes;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.Game.Object;
 using FFXIVClientStructs.FFXIV.Client.System.Memory;
@@ -12,34 +11,60 @@ using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Client.UI.Info;
 using FFXIVClientStructs.FFXIV.Component.GUI;
-using FFXIVClientStructs.Interop.Attributes;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
-using CSAgentContext = FFXIVClientStructs.FFXIV.Client.UI.Agent.AgentContext;
-using CSAgentInventoryContext = FFXIVClientStructs.FFXIV.Client.UI.Agent.AgentInventoryContext;
 using ValueType = FFXIVClientStructs.FFXIV.Component.GUI.ValueType;
 
 namespace ItemIcons.Utils;
 
-public sealed unsafe class MenuItemClickedArgs
+public unsafe class MenuArgs
 {
     public nint AgentPtr { get; }
-    private bool? IsDefaultAgentContext { get; }
+    private bool? IsDefaultContext { get; }
+
+    public GameObjectID ObjectId => DefaultContext->TargetObjectId;
+
+    public ulong ContentId => DefaultContext->TargetContentId;
+
+    public short HomeWorld => DefaultContext->TargetHomeWorldId;
+
+    public InfoProxyCommonList.CharacterData? CharacterData =>
+        DefaultContext->CurrentContextMenuTarget != null ?
+            *DefaultContext->CurrentContextMenuTarget :
+            null;
+
+    public Utf8String Name => DefaultContext->TargetName;
 
     public InventoryItem Item => *InventoryContext->TargetInventorySlot;
 
+    protected internal MenuArgs(AgentInterface* agent, bool? isDefaultAgentContext)
+    {
+        AgentPtr = (nint)agent;
+        IsDefaultContext = isDefaultAgentContext;
+    }
+
+    private AgentContext* DefaultContext =>
+        IsDefaultContext == true ?
+            (AgentContext*)AgentPtr :
+            throw new InvalidOperationException("Not a normal context menu");
+
+    private AgentInventoryContext* InventoryContext =>
+        IsDefaultContext == false ?
+            (AgentInventoryContext*)AgentPtr :
+            throw new InvalidOperationException("Not an inventory menu");
+}
+
+public sealed unsafe class MenuItemClickedArgs : MenuArgs
+{
     private Action<SeString?, IReadOnlyList<MenuItem>> OnOpenSubmenu { get; }
 
-    internal MenuItemClickedArgs(Action<SeString?, IReadOnlyList<MenuItem>> openSubmenu, AgentInterface* agent, bool? isDefaultAgentContext)
+    internal MenuItemClickedArgs(Action<SeString?, IReadOnlyList<MenuItem>> openSubmenu, AgentInterface* agent, bool? isDefaultAgentContext) : base(agent, isDefaultAgentContext)
     {
         OnOpenSubmenu = openSubmenu;
-        AgentPtr = (nint)agent;
-        IsDefaultAgentContext = isDefaultAgentContext;
     }
 
     public void OpenSubmenu(SeString name, IReadOnlyList<MenuItem> items) =>
@@ -47,42 +72,25 @@ public sealed unsafe class MenuItemClickedArgs
 
     public void OpenSubmenu(IReadOnlyList<MenuItem> items) =>
         OnOpenSubmenu(null, items);
-
-    private AgentInventoryContext* InventoryContext =>
-        IsDefaultAgentContext == false ?
-            (AgentInventoryContext*)AgentPtr :
-            throw new InvalidOperationException("Not an inventory menu");
 }
 
-public sealed unsafe class MenuOpenedArgs
+public sealed unsafe class MenuOpenedArgs : MenuArgs
 {
-    public nint AgentPtr { get; }
-    private bool? IsDefaultAgentContext { get; }
-
-    public InventoryItem Item => *InventoryContext->TargetInventorySlot;
-
     private Action<MenuItem> OnAddMenuItem { get; }
 
-    internal MenuOpenedArgs(Action<MenuItem> addMenuItem, AgentInterface* agent, bool? isDefaultAgentContext)
+    internal MenuOpenedArgs(Action<MenuItem> addMenuItem, AgentInterface* agent, bool? isDefaultAgentContext) : base(agent, isDefaultAgentContext)
     {
         OnAddMenuItem = addMenuItem;
-        AgentPtr = (nint)agent;
-        IsDefaultAgentContext = isDefaultAgentContext;
     }
 
     public void AddMenuItem(MenuItem item) =>
         OnAddMenuItem(item);
-
-    private AgentInventoryContext* InventoryContext =>
-        IsDefaultAgentContext == false ?
-            (AgentInventoryContext*)AgentPtr :
-            throw new InvalidOperationException("Not an inventory menu");
 }
 
 public sealed record MenuItem
 {
     public required SeString Name { get; init; }
-    public required Action<MenuItemClickedArgs> OnClicked { get; init; }
+    public Action<MenuItemClickedArgs>? OnClicked { get; init; }
     public int Priority { get; init; }
     public bool IsEnabled { get; init; } = true;
     public bool IsSubmenu { get; init; }
@@ -104,13 +112,13 @@ internal unsafe sealed class CtxMenu : IDisposable
     [Signature("E8 ?? ?? ?? ?? 66 89 46 50")]
     private readonly RaptureAtkModuleOpenAddonDelegate raptureAtkModuleOpenAddon = null!;
     // Returns new addon id
-    private unsafe delegate nint RaptureAtkModuleOpenAddonDelegate(RaptureAtkModule* a1, uint addonNameId, uint valueCount, AtkValue* values, AgentInterface* parentAgent, long unk, ushort ownerAddonId, int unk2);
+    private unsafe delegate nint RaptureAtkModuleOpenAddonDelegate(RaptureAtkModule* a1, uint addonNameId, uint valueCount, AtkValue* values, AgentInterface* parentAgent, long unk, uint ownerAddonId, int unk2);
 
     private List<MenuItem> DefaultContextItems { get; } = new();
     private List<MenuItem> InventoryContextItems { get; } = new();
 
     private AgentInterface* SelectedAgent { get; set; }
-    private bool? SelectedIsDefaultAgentContext { get; set; }
+    private bool? SelectedIsDefaultContext { get; set; }
     private List<MenuItem>? SelectedItems { get; set; }
 
     // -1 -> -inf: native items
@@ -132,11 +140,14 @@ internal unsafe sealed class CtxMenu : IDisposable
         if (!char.IsAsciiLetterUpper(prefix))
             throw new ArgumentException("Prefix must be an uppercase letter", nameof(prefix));
 
-        return new SeStringBuilder()
-            .AddUiForeground($"{(SeIconChar.BoxedLetterA + prefix - 'A').ToIconString()} ", colorKey)
+        return GetPrefixedName(name, SeIconChar.BoxedLetterA + prefix - 'A', colorKey);
+    }
+
+    public static SeString GetPrefixedName(SeString name, SeIconChar prefix, ushort colorKey) =>
+        new SeStringBuilder()
+            .AddUiForeground($"{prefix.ToIconString()} ", colorKey)
             .Append(name)
             .Build();
-    }
 
     public void AddDefaultContextItem(MenuItem item)
     {
@@ -163,12 +174,14 @@ internal unsafe sealed class CtxMenu : IDisposable
         // copy old memory if existing
         if (!oldValues.IsEmpty)
             oldValues.CopyTo(new((void*)(newArray + 8), oldValues.Length));
-        // IMemorySpace.Free((void*)((nint)Unsafe.AsPointer(ref oldValues[0]) - 8), (ulong)((sizeof(AtkValue) * oldValues.Length) + 8));
 
         return (AtkValue*)(newArray + 8);
     }
 
-    private AtkValue* CreateEmptySubmenuContextMenuArray(SeString name, int x, int y)
+    private void FreeExpandedContextMenuArray(AtkValue* newValues, int newSize) =>
+        IMemorySpace.Free((void*)((nint)newValues - 8), (ulong)((newSize * sizeof(AtkValue)) + 8));
+
+    private AtkValue* CreateEmptySubmenuContextMenuArray(SeString name, int x, int y, out int valueCount)
     {
         // 0: UInt = ContextItemCount
         // 1: String = Name
@@ -179,7 +192,8 @@ internal unsafe sealed class CtxMenu : IDisposable
         // 6: UInt = ReturnArrowMask (_gap_0x6BC ? 1 << (ContextItemCount - 1) : 0)
         // 7: UInt = 1
 
-        var values = ExpandContextMenuArray(Span<AtkValue>.Empty, 8);
+        valueCount = 8;
+        var values = ExpandContextMenuArray(Span<AtkValue>.Empty, valueCount);
         values[0].ChangeType(ValueType.UInt);
         values[0].UInt = 0;
         values[1].ChangeType(ValueType.String);
@@ -220,40 +234,31 @@ internal unsafe sealed class CtxMenu : IDisposable
         return b.ToString();
     }
 
-    private void SetupContextMenu(IReadOnlyList<MenuItem> items, AddonContextMenu* addon, ref int valueCount, ref AtkValue* values)
+    private void SetupGenericMenu(int headerCount, int sizeHeaderIdx, int returnHeaderIdx, int submenuHeaderIdx, IReadOnlyList<MenuItem> items, ref int valueCount, ref AtkValue* values)
     {
-        // 0: UInt = Item Count
-        // 1: UInt = 0 (probably window name, just unused)
-        // 2: UInt = Return Mask (?)
-        // 3: UInt = Submenu Mask
-        // 4: UInt = OpenAtCursorPosition ? 2 : 1
-        // 5: UInt = 0
-        // 6: UInt = 0
-
-        MenuCallbackIds.Clear();
-
-        const int offset = 7;
-
-        var itemsWithIdx = items.Select((item, idx) => (item, idx)).Order();
+        var itemsWithIdx = items.Select((item, idx) => (item, idx)).OrderBy(i => i.item.Priority);
         var prefixItems = itemsWithIdx.Where(i => i.item.Priority < 0).ToArray();
         var suffixItems = itemsWithIdx.Where(i => i.item.Priority >= 0).ToArray();
 
-        var nativeMenuSize = (int)values[0].UInt;
+        var nativeMenuSize = (int)values[sizeHeaderIdx].UInt;
         var prefixMenuSize = prefixItems.Length;
         var suffixMenuSize = suffixItems.Length;
 
-        var hasGameDisabled = valueCount - offset - nativeMenuSize > 0;
+        var hasGameDisabled = valueCount - headerCount - nativeMenuSize > 0;
 
         var hasCustomDisabled = items.Any(item => !item.IsEnabled);
         var hasAnyDisabled = hasGameDisabled || hasCustomDisabled;
 
-        values = ExpandContextMenuArray(new(values, valueCount), (nativeMenuSize + items.Count) * (hasAnyDisabled ? 2 : 1) + offset);
-        var offsetData = new Span<AtkValue>(values, offset);
-        var nameData = new Span<AtkValue>(values + offset, nativeMenuSize + items.Count);
-        var disabledData = hasAnyDisabled ? new Span<AtkValue>(values + offset + nativeMenuSize + items.Count, nativeMenuSize + items.Count) : Span<AtkValue>.Empty;
+        values = ExpandContextMenuArray(
+            new(values, valueCount),
+            valueCount = (nativeMenuSize + items.Count) * (hasAnyDisabled ? 2 : 1) + headerCount
+            );
+        var offsetData = new Span<AtkValue>(values, headerCount);
+        var nameData = new Span<AtkValue>(values + headerCount, nativeMenuSize + items.Count);
+        var disabledData = hasAnyDisabled ? new Span<AtkValue>(values + headerCount + nativeMenuSize + items.Count, nativeMenuSize + items.Count) : Span<AtkValue>.Empty;
 
-        var returnMask = offsetData[2].UInt;
-        var submenuMask = offsetData[3].UInt;
+        var returnMask = offsetData[returnHeaderIdx].UInt;
+        var submenuMask = offsetData[submenuHeaderIdx].UInt;
 
         returnMask <<= prefixMenuSize;
         submenuMask <<= prefixMenuSize;
@@ -273,9 +278,8 @@ internal unsafe sealed class CtxMenu : IDisposable
         if (!disabledData.IsEmpty)
             disabledData[..nativeMenuSize].CopyTo(disabledData.Slice(prefixMenuSize, nativeMenuSize));
 
-        for (var i = 0; i < prefixMenuSize; ++i)
+        void FillData(Span<AtkValue> disabledData, Span<AtkValue> nameData, int i, MenuItem item, int idx)
         {
-            var (item, idx) = prefixItems[i];
             MenuCallbackIds.Add(idx);
 
             if (hasAnyDisabled)
@@ -291,6 +295,12 @@ internal unsafe sealed class CtxMenu : IDisposable
 
             nameData[i].ChangeType(ValueType.String);
             nameData[i].SetString(item.Name.Encode().NullTerminate());
+        }
+
+        for (var i = 0; i < prefixMenuSize; ++i)
+        {
+            var (item, idx) = prefixItems[i];
+            FillData(disabledData, nameData, i, item, idx);
         }
 
         MenuCallbackIds.AddRange(Enumerable.Range(0, nativeMenuSize).Select(i => -i - 1));
@@ -298,121 +308,86 @@ internal unsafe sealed class CtxMenu : IDisposable
         for (var i = prefixMenuSize + nativeMenuSize; i < prefixMenuSize + nativeMenuSize + suffixMenuSize; ++i)
         {
             var (item, idx) = suffixItems[i - prefixMenuSize - nativeMenuSize];
-            MenuCallbackIds.Add(idx);
-
-            if (hasAnyDisabled)
-            {
-                disabledData[i].ChangeType(ValueType.Int);
-                disabledData[i].Int = item.IsEnabled ? 0 : 1;
-            }
-
-            if (item.IsReturn)
-                returnMask |= 1u << i;
-            if (item.IsSubmenu)
-                submenuMask |= 1u << i;
-
-            nameData[i].ChangeType(ValueType.String);
-            nameData[i].SetString(item.Name.Encode().NullTerminate());
+            FillData(disabledData, nameData, i, item, idx);
         }
 
-        offsetData[2].UInt = returnMask;
-        offsetData[3].UInt = submenuMask;
+        offsetData[returnHeaderIdx].UInt = returnMask;
+        offsetData[submenuHeaderIdx].UInt = submenuMask;
 
-        offsetData[0].UInt += (uint)items.Count;
-
-        valueCount = nativeMenuSize + items.Count;
-        if (hasAnyDisabled)
-            valueCount *= 2;
-        valueCount += offset;
+        offsetData[sizeHeaderIdx].UInt += (uint)items.Count;
     }
 
-    private void SetupContextSubMenu(IReadOnlyList<MenuItem> items, AddonContextMenuTitle* addon, ref int valueCount, ref AtkValue* values)
+    private void SetupContextMenu(IReadOnlyList<MenuItem> items, ref int valueCount, ref AtkValue* values)
     {
-        MenuCallbackIds.Clear();
+        // 0: UInt = Item Count
+        // 1: UInt = 0 (probably window name, just unused)
+        // 2: UInt = Return Mask (?)
+        // 3: UInt = Submenu Mask
+        // 4: UInt = OpenAtCursorPosition ? 2 : 1
+        // 5: UInt = 0
+        // 6: UInt = 0
 
-        const int offset = 8;
+        SetupGenericMenu(7, 0, 2, 3, items, ref valueCount, ref values);
+    }
 
-        var sortedItems = items.Select((item, idx) => (item, idx)).OrderBy(i => i.item.Priority).ToArray();
-        var hasDisabled = items.Any(item => !item.IsEnabled);
+    private void SetupContextSubMenu(IReadOnlyList<MenuItem> items, ref int valueCount, ref AtkValue* values)
+    {
+        // 0: UInt = ContextItemCount
+        // 1: skipped?
+        // 2: Int = PositionX
+        // 3: Int = PositionY
+        // 4: Bool = false
+        // 5: UInt = ContextItemSubmenuMask
+        // 6: UInt = _gap_0x6BC ? 1 << (ContextItemCount - 1) : 0
+        // 7: UInt = 1
 
-        values = ExpandContextMenuArray(new(values, offset), items.Count * (hasDisabled ? 2 : 1) + offset);
-
-        var beginIdx = offset;
-        var endIdx = beginIdx + items.Count;
-
-        uint submenuMask = 0;
-        uint returnMask = 0;
-
-        for (var i = 0; i < items.Count; ++i)
-        {
-            var (item, idx) = sortedItems[i];
-            MenuCallbackIds.Add(idx);
-
-            if (hasDisabled)
-            {
-                values[i + endIdx] = new();
-                values[i + endIdx].ChangeType(ValueType.Int);
-                values[i + endIdx].Int = item.IsEnabled ? 0 : 1;
-            }
-
-            if (item.IsSubmenu)
-                submenuMask |= 1u << i;
-            if (item.IsReturn)
-                returnMask |= 1u << i;
-
-            values[i + offset].ChangeType(ValueType.String);
-            values[i + offset].SetString(item.Name.Encode().NullTerminate());
-        }
-
-        values[0].UInt += (uint)items.Count;
-        
-        values[5].UInt = submenuMask;
-        values[6].UInt = returnMask;
-
-        valueCount = items.Count;
-        if (hasDisabled)
-            valueCount *= 2;
-        valueCount += offset;
+        SetupGenericMenu(8, 0, 5, 6, items, ref valueCount, ref values);
     }
 
     private nint ContextAddonOpenByAgentDetour(RaptureAtkModule* module, byte* addonName, AtkUnitBase* addon, int valueCount, AtkValue* values, AgentInterface* agent, nint a7, ushort a8)
     {
+        var oldValues = values;
+
         var n = MemoryHelper.ReadStringNullTerminated((nint)addonName);
-        if (n == "ContextMenu")
+        if (n.Equals("ContextMenu", StringComparison.Ordinal))
         {
             MenuCallbackIds.Clear();
             SelectedAgent = agent;
-            if (SelectedAgent == CSAgentInventoryContext.Instance())
+            if (SelectedAgent == AgentInventoryContext.Instance())
             {
                 SelectedItems = InventoryContextItems;
-                SelectedIsDefaultAgentContext = false;
+                SelectedIsDefaultContext = false;
             }
-            else if (SelectedAgent == CSAgentContext.Instance())
+            else if (SelectedAgent == AgentContext.Instance())
             {
                 SelectedItems = DefaultContextItems;
-                SelectedIsDefaultAgentContext = true;
+                SelectedIsDefaultContext = true;
             }
             else
             {
                 SelectedItems = null;
-                SelectedIsDefaultAgentContext = null;
+                SelectedIsDefaultContext = null;
             }
             SubmenuItems = null;
 
             if (SelectedItems != null)
             {
-                SelectedItems = new List<MenuItem>(SelectedItems);
-                OnMenuOpened?.Invoke(new(SelectedItems.Add, SelectedAgent, SelectedIsDefaultAgentContext));
-                SetupContextMenu(SelectedItems, (AddonContextMenu*)addon, ref valueCount, ref values);
+                SelectedItems = new(SelectedItems);
+                OnMenuOpened?.Invoke(new(SelectedItems.Add, SelectedAgent, SelectedIsDefaultContext));
+                SetupContextMenu(SelectedItems, ref valueCount, ref values);
             }
         }
-        if (n == "AddonContextSub")
+        else if (n.Equals("AddonContextSub", StringComparison.Ordinal))
         {
             MenuCallbackIds.Clear();
             if (SubmenuItems != null)
-                SetupContextSubMenu(SubmenuItems, (AddonContextMenuTitle*)addon, ref valueCount, ref values);
+                SetupContextSubMenu(SubmenuItems, ref valueCount, ref values);
         }
-        return contextAddonOpenByAgentHook.Original(module, addonName, addon, valueCount, values, agent, a7, a8);
+
+        var ret = contextAddonOpenByAgentHook.Original(module, addonName, addon, valueCount, values, agent, a7, a8);
+        if (values != oldValues)
+            FreeExpandedContextMenuArray(values, valueCount);
+        return ret;
     }
 
     private void OpenSubmenu(SeString name, IReadOnlyList<MenuItem> submenuItems, int posX, int posY)
@@ -423,29 +398,23 @@ internal unsafe sealed class CtxMenu : IDisposable
         SubmenuItems = submenuItems;
 
         var module = RaptureAtkModule.Instance();
-        var paramCount = 8;
-        var values = CreateEmptySubmenuContextMenuArray(name, posX, posY);
-        var ownerAddonId = SelectedAgent->AddonId;
-        // 0: UInt = ContextItemCount
-        // 1: skipped?
-        // 2: Int = PositionX
-        // 3: Int = PositionY
-        // 4: Bool = false
-        // 5: UInt = ContextItemSubmenuMask
-        // 6: UInt = _gap_0x6BC ? 1 << (ContextItemCount - 1) : 0
-        // 7: UInt = 1
-        if (SelectedIsDefaultAgentContext == true)
+        var values = CreateEmptySubmenuContextMenuArray(name, posX, posY, out var valueCount);
+        uint ownerAddonId;
+
+        if (SelectedIsDefaultContext == true)
         {
-            // 445 16; 10; 71 4
-            raptureAtkModuleOpenAddon(module, 445, (uint)paramCount, values, SelectedAgent, 71, 16, 4);
+            ownerAddonId = ((AgentContext*)SelectedAgent)->OwnerAddon;
+            raptureAtkModuleOpenAddon(module, 445, (uint)valueCount, values, SelectedAgent, 71, ownerAddonId, 4);
         }
-        else if (SelectedIsDefaultAgentContext == false)
+        else if (SelectedIsDefaultContext == false)
         {
-            // 445 77; 10; 0 4
-            raptureAtkModuleOpenAddon(module, 445, (uint)paramCount, values, SelectedAgent, 0, 77, 4);
+            ownerAddonId = ((AgentInventoryContext*)SelectedAgent)->OwnerAddonId;
+            raptureAtkModuleOpenAddon(module, 445, (uint)valueCount, values, SelectedAgent, 0, ownerAddonId, 4);
         }
         else
             Log.Debug($"Unknown agent {(nint)SelectedAgent:X8}");
+
+        FreeExpandedContextMenuArray(values, valueCount);
     }
 
     private bool ContextMenuOnVf72Detour(AddonContextMenu* addon, int selectedIdx, byte a3)
@@ -474,6 +443,8 @@ internal unsafe sealed class CtxMenu : IDisposable
 
             try
             {
+                if (item.OnClicked == null)
+                    throw new InvalidOperationException("Item has no OnClicked handler");
                 item.OnClicked(new(
                     (name, items) =>
                     {
@@ -483,7 +454,7 @@ internal unsafe sealed class CtxMenu : IDisposable
                         openedSubmenu = true;
                     },
                     SelectedAgent,
-                    SelectedIsDefaultAgentContext
+                    SelectedIsDefaultContext
                 ));
             }
             catch (Exception e)
@@ -497,7 +468,7 @@ internal unsafe sealed class CtxMenu : IDisposable
             return false;
         }
 
-        original:
+original:
         // Eventually handled by inventorycontext here: 14022BBD0 (6.51)
         return contextMenuOnVf72Hook.Original(addon, selectedIdx, a3);
     }
@@ -507,115 +478,4 @@ internal unsafe sealed class CtxMenu : IDisposable
         contextAddonOpenByAgentHook?.Dispose();
         contextMenuOnVf72Hook?.Dispose();
     }
-}
-
-[Addon("ContextMenu")]
-[StructLayout(LayoutKind.Explicit, Size = 0x2A0)]
-internal unsafe struct AddonContextMenu
-{
-    [FieldOffset(0x0)] public AtkUnitBase AtkUnitBase;
-    [FieldOffset(0x160)] public AtkValue* ContextMenuArray;
-    [FieldOffset(0x1CA)] public ushort ContextMenuArrayCount;
-}
-
-[Addon("AddonContextMenuTitle", "AddonContextSub")]
-[StructLayout(LayoutKind.Explicit, Size = 0x2B0)]
-internal unsafe struct AddonContextMenuTitle
-{
-    [FieldOffset(0x0)] public AtkUnitBase AtkUnitBase;
-    [FieldOffset(0x160)] public AtkValue* ContextMenuArray;
-    [FieldOffset(0x1CA)] public ushort ContextMenuArrayCount;
-}
-
-[Agent(AgentId.Context)]
-[StructLayout(LayoutKind.Explicit, Size = 0x1750)]
-internal unsafe partial struct AgentContext
-{
-    [FieldOffset(0x00)] public AgentInterface AgentInterface;
-
-    [FieldOffset(0x28)] public fixed byte ContextMenuArray[0x678 * 2];
-    [FieldOffset(0x28)] public ContextMenu MainContextMenu;
-    [FieldOffset(0x6A0)] public ContextMenu SubContextMenu;
-    [FieldOffset(0xD18)] public ContextMenu* CurrentContextMenu;
-    [FieldOffset(0xD20)] public Utf8String ContextMenuTitle;
-    [FieldOffset(0xD88)] public Point Position;
-    [FieldOffset(0xD90)] public uint OwnerAddon;
-
-    [FieldOffset(0xDA0)] public InfoProxyCommonList.CharacterData ContextMenuTarget;
-    [FieldOffset(0xE08)] public InfoProxyCommonList.CharacterData* CurrentContextMenuTarget;
-    [FieldOffset(0xE10)] public Utf8String TargetName;
-    [FieldOffset(0xE78)] public Utf8String YesNoTargetName;
-
-    [FieldOffset(0xEE8)] public ulong TargetContentId;
-    [FieldOffset(0xEF0)] public ulong YesNoTargetContentId;
-    [FieldOffset(0xEF8)] public GameObjectID TargetObjectId;
-    [FieldOffset(0xF00)] public GameObjectID YesNoTargetObjectId;
-    [FieldOffset(0xF08)] public short TargetHomeWorldId;
-    [FieldOffset(0xF0A)] public short YesNoTargetHomeWorldId;
-    [FieldOffset(0xF0C)] public byte YesNoEventId;
-
-    [FieldOffset(0xF10)] public int TargetGender;
-    [FieldOffset(0xF14)] public uint TargetMountSeats;
-
-    [FieldOffset(0x1738)] public void* UpdateChecker; // AgentContextUpdateChecker*, if handler returns false the menu closes
-    [FieldOffset(0x1740)] public long UpdateCheckerParam; //objectid of the target or list index of an addon or other things
-    [FieldOffset(0x1748)] public byte ContextMenuIndex;
-    [FieldOffset(0x1749)] public byte OpenAtPosition; // if true menu opens at Position else at cursor location
-}
-
-[StructLayout(LayoutKind.Explicit, Size = 0x678)]
-internal unsafe partial struct ContextMenu
-{
-    [FieldOffset(0x00)] public short CurrentEventIndex;
-    [FieldOffset(0x02)] public short CurrentEventId;
-
-    [FixedSizeArray<AtkValue>(33)]
-    [FieldOffset(0x08)] public fixed byte EventParams[0x10 * 33]; // 32 * AtkValue + 1 * AtkValue for submenus with title
-
-    [FieldOffset(0x428)] public fixed byte EventIdArray[32];
-    [FieldOffset(0x450)] public fixed long EventHandlerArray[32];
-    [FieldOffset(0x558)] public fixed long EventHandlerParamArray[32];
-
-    [FieldOffset(0x660)] public uint ContextItemDisabledMask;
-    [FieldOffset(0x664)] public uint ContextSubMenuMask;
-    [FieldOffset(0x668)] public byte* ContextTitleString;
-    [FieldOffset(0x670)] public byte SelectedContextItemIndex;
-}
-
-[Agent(AgentId.InventoryContext)]
-[StructLayout(LayoutKind.Explicit, Size = 0x778)]
-internal unsafe partial struct AgentInventoryContext
-{
-    [FieldOffset(0x0)] public AgentInterface AgentInterface;
-    [FieldOffset(0x28)] public uint BlockingAddonId;
-    [FieldOffset(0x2C)] public int ContextItemStartIndex;
-    [FieldOffset(0x30)] public int ContextItemCount;
-
-    [FieldOffset(0x38)] public fixed byte EventParams[0x10 * 98];
-    [FieldOffset(0x658)] public fixed byte EventIdArray[84];
-    [FieldOffset(0x6AC)] public uint ContextItemDisabledMask;
-    [FieldOffset(0x6B0)] public uint ContextItemSubmenuMask;
-
-    public Span<AtkValue> EventParamsSpan => new(Unsafe.AsPointer(ref EventParams[0]), 98);
-    public Span<byte> EventIdSpan => new(Unsafe.AsPointer(ref EventIdArray[0]), 84);
-
-    [FieldOffset(0x6B4)] public int PositionX;
-    [FieldOffset(0x6B8)] public int PositionY;
-
-    [FieldOffset(0x6C8)] public uint OwnerAddonId;
-    [FieldOffset(0x6CC)] public int YesNoPosition; // 2 shorts combined, gets passed as int arg, default = -1
-    [FieldOffset(0x6CC)] public short YesNoX;
-    [FieldOffset(0x6CE)] public short YesNoY;
-    [FieldOffset(0x6D0)] public InventoryType TargetInventoryId;
-    [FieldOffset(0x6D4)] public int TargetInventorySlotId;
-
-    [FieldOffset(0x6DC)] public uint DummyInventoryId;
-
-    [FieldOffset(0x6E8)] public InventoryItem* TargetInventorySlot;
-    [FieldOffset(0x6F0)] public InventoryItem TargetDummyItem;
-    [FieldOffset(0x728)] public InventoryType BlockedInventoryId;
-    [FieldOffset(0x72C)] public int BlockedInventorySlotId;
-
-    [FieldOffset(0x738)] public InventoryItem DiscardDummyItem;
-    [FieldOffset(0x770)] public int DialogType; // ?? 1 = Discard, 2 = LowerQuality
 }
