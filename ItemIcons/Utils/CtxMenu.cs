@@ -277,23 +277,28 @@ internal unsafe sealed class CtxMenu : IDisposable
         var returnMask = offsetData[returnHeaderIdx].UInt;
         var submenuMask = offsetData[submenuHeaderIdx].UInt;
 
-        returnMask <<= prefixMenuSize;
-        submenuMask <<= prefixMenuSize;
-
-        if (!hasGameDisabled && hasCustomDisabled)
+        nameData[..nativeMenuSize].CopyTo(nameData.Slice(prefixMenuSize, nativeMenuSize));
+        if (hasAnyDisabled)
         {
-            // re-add disabled args
-            for (var i = 0; i < nativeMenuSize; ++i)
+            if (hasGameDisabled)
             {
-                disabledData[i] = new();
-                disabledData[i].ChangeType(ValueType.Int);
-                disabledData[i].Int = 0;
+                // copy old disabled data
+                var oldDisabledData = new Span<AtkValue>(values + headerCount + nativeMenuSize, nativeMenuSize);
+                oldDisabledData.CopyTo(disabledData.Slice(prefixMenuSize, nativeMenuSize));
+            }
+            else
+            {
+                // enable all
+                for (var i = prefixMenuSize; i < prefixMenuSize + nativeMenuSize; ++i)
+                {
+                    disabledData[i].ChangeType(ValueType.Int);
+                    disabledData[i].Int = 0;
+                }
             }
         }
 
-        nameData[..nativeMenuSize].CopyTo(nameData.Slice(prefixMenuSize, nativeMenuSize));
-        if (!disabledData.IsEmpty)
-            disabledData[..nativeMenuSize].CopyTo(disabledData.Slice(prefixMenuSize, nativeMenuSize));
+        returnMask <<= prefixMenuSize;
+        submenuMask <<= prefixMenuSize;
 
         void FillData(Span<AtkValue> disabledData, Span<AtkValue> nameData, int i, MenuItem item, int idx)
         {
