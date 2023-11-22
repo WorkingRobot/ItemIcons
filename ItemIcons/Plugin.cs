@@ -12,9 +12,6 @@ using System.Reflection;
 using ItemIcons.IconProviders;
 using System.Collections.Generic;
 using Dalamud.Game.Text.SeStringHandling;
-using Dalamud.Game.Text;
-using System.Runtime.CompilerServices;
-using Dalamud.Memory;
 
 namespace ItemIcons;
 
@@ -65,24 +62,7 @@ public sealed class Plugin : IDalamudPlugin
         IconManager = new();
 
         ContextMenu = new();
-        ContextMenu.AddInventoryContextItem(new()
-        {
-            Name = CtxMenu.GetPrefixedName("Favorite", 'I', 541),
-            OnClicked = OpenFavoriteSubmenu,
-            IsSubmenu = true,
-        });
-        ContextMenu.AddDefaultContextItem(new()
-        {
-            Name = CtxMenu.GetPrefixedName("Favorite", SeIconChar.BoxedQuestionMark, 506),
-            OnClicked = args =>
-            {
-                args.OpenSubmenu(new MenuItem[]
-                {
-                    new() { Name = "Invalid Item", IsEnabled = false }
-                });
-            },
-            IsSubmenu = true,
-        });
+        ContextMenu.OnMenuOpened += OnMenuOpened;
 
         Service.CommandManager.AddHandler("/ii", new((_, _) => OpenSettingsWindow()) { HelpMessage = "Open the Item Icons settings window." });
 
@@ -146,39 +126,52 @@ public sealed class Plugin : IDalamudPlugin
         }
     }
 
+    private void OnMenuOpened(MenuOpenedArgs args)
+    {
+        if (!args.IsInventory)
+            return;
+
+        if (!Service.Configuration.IsIconProviderEnabled(typeof(Favorites)))
+            return;
+
+        var item = Item.FromInventoryItem(args._Item)!.Value;
+        if (item.ItemId == 0)
+            return;
+
+        args.AddMenuItem(new()
+        {
+            Name = CtxMenu.GetPrefixedName("Favorite", 'I', 541),
+            OnClicked = OpenFavoriteSubmenu,
+            IsSubmenu = true,
+        });
+    }
+
     private void OpenFavoriteSubmenu(MenuItemClickedArgs args)
     {
         var items = new List<MenuItem>();
 
-        var item = new Item(args.Item.ItemID);
+        var item = Item.FromInventoryItem(args._Item)!.Value;
 
-        if (item.ItemId == 0)
-            items.Add(new() { Name = "Invalid Item", OnClicked = _ => { }, IsEnabled = false });
-        else
+        var hasId = Service.Configuration.FavoritedItems.TryGetValue(item.ItemId, out var existingId);
+        BitmapFontIcon? favoritedIcon = hasId ? (existingId < Favorites.IconIds.Length ? Favorites.IconIds[existingId] : null) : null;
+
+        uint itemIdx = 0;
+        foreach(var icon in Favorites.IconIds)
         {
-            var hasId = Service.Configuration.FavoritedItems.TryGetValue(item.ItemId, out var existingId);
-            BitmapFontIcon? favoritedIcon = hasId ? (existingId < Favorites.IconIds.Length ? Favorites.IconIds[existingId] : null) : null;
-            uint itemIdx = 0;
-            foreach(var icon in Favorites.IconIds)
+            var b = new SeStringBuilder();
+            b.AddIcon(icon);
+            if (favoritedIcon == icon)
+                b.AddUiGlow($" (Remove)", 14);
+            var idx = itemIdx;
+            items.Add(new()
             {
-                var b = new SeStringBuilder();
-                if (favoritedIcon == icon)
-                    b.AddUiGlow(540);
-                b.AddText($"[{itemIdx}] ");
-                if (favoritedIcon == icon)
-                    b.AddUiGlowOff();
-                b.AddIcon(icon);
-                var idx = itemIdx;
-                items.Add(new()
-                {
-                    Name = b.Build(),
-                    OnClicked = _ => SetFavoriteForItem(item.ItemId, idx),
-                });
-                itemIdx++;
-            }
+                Name = b.Build(),
+                OnClicked = _ => SetFavoriteForItem(item.ItemId, idx),
+            });
+            itemIdx++;
         }
 
-        args.OpenSubmenu(items);
+        args.OpenSubmenu("Favorite", items);
     }
 
     private void SetFavoriteForItem(uint itemId, uint itemIdx)

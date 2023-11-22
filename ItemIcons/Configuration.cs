@@ -47,13 +47,16 @@ public record Configuration : IPluginConfiguration
     public bool IsItemProviderEnabled(BaseItemProvider provider) =>
         !ItemProviders.TryGetValue(provider.Category, out var config) || config.Enabled;
 
+    public bool IsIconProviderEnabled(Type iconProviderType) =>
+        IconProviders.GetValueOrDefault(iconProviderType.FullName!, true);
+
     public bool ShouldItemProviderShowOneIcon(BaseItemProvider provider) =>
         ItemProviders.TryGetValue(provider.Category, out var config) && config.ShowOnlyOne;
 
     public bool CanItemProviderMatch(BaseItemProvider provider, IconProvider iconProvider)
     {
         var iconName = iconProvider.GetType().FullName!;
-        if (!IconProviders.GetValueOrDefault(iconName, true))
+        if (!IsIconProviderEnabled(iconProvider.GetType()))
             return false;
 
         if (ItemProviders.TryGetValue(provider.Category, out var config))

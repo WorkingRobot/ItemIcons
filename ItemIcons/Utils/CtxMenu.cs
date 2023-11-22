@@ -4,13 +4,12 @@ using Dalamud.Hooking;
 using Dalamud.Memory;
 using Dalamud.Utility.Signatures;
 using FFXIVClientStructs.FFXIV.Client.Game;
-using FFXIVClientStructs.FFXIV.Client.Game.Object;
 using FFXIVClientStructs.FFXIV.Client.System.Memory;
-using FFXIVClientStructs.FFXIV.Client.System.String;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Client.UI.Info;
 using FFXIVClientStructs.FFXIV.Component.GUI;
+using FFXIVClientStructs.Interop;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,37 +22,52 @@ namespace ItemIcons.Utils;
 
 public unsafe class MenuArgs
 {
+    public string? AddonName { get; }
+    public nint AddonPtr { get; }
     public nint AgentPtr { get; }
     private bool? IsDefaultContext { get; }
 
-    public GameObjectID ObjectId => DefaultContext->TargetObjectId;
+    public bool IsDefault => IsDefaultContext == true;
+    public bool IsInventory => IsDefaultContext == false;
 
+    private IReadOnlySet<nint> eventInterfaces { get; }
+    public IReadOnlySet<nint> EventInterfaces =>
+        IsDefault ?
+            eventInterfaces :
+            throw new InvalidOperationException("Not a normal context menu");
+
+    public ulong ObjectId => DefaultContext->TargetObjectId;
     public ulong ContentId => DefaultContext->TargetContentId;
-
     public short HomeWorld => DefaultContext->TargetHomeWorldId;
+    public nint CharacterDataPtr => (nint)DefaultContext->CurrentContextMenuTarget;
 
-    public InfoProxyCommonList.CharacterData? CharacterData =>
+    public InfoProxyCommonList.CharacterData? _CharacterData =>
         DefaultContext->CurrentContextMenuTarget != null ?
             *DefaultContext->CurrentContextMenuTarget :
             null;
 
-    public Utf8String Name => DefaultContext->TargetName;
+    public string Name => DefaultContext->TargetName.ToString();
 
-    public InventoryItem Item => *InventoryContext->TargetInventorySlot;
+    public nint ItemSlotPtr => (nint)InventoryContext->TargetInventorySlot;
 
-    protected internal MenuArgs(AgentInterface* agent, bool? isDefaultAgentContext)
+    public InventoryItem _Item => *InventoryContext->TargetInventorySlot;
+
+    protected internal MenuArgs(AtkUnitBase* addon, AgentInterface* agent, bool? isDefaultAgentContext, IReadOnlySet<nint> eventInterfaces)
     {
+        AddonName = addon != null ? MemoryHelper.ReadString((nint)addon->Name, 32) : null;
+        AddonPtr = (nint)addon;
         AgentPtr = (nint)agent;
         IsDefaultContext = isDefaultAgentContext;
+        this.eventInterfaces = eventInterfaces;
     }
 
     private AgentContext* DefaultContext =>
-        IsDefaultContext == true ?
+        IsDefault ?
             (AgentContext*)AgentPtr :
             throw new InvalidOperationException("Not a normal context menu");
 
     private AgentInventoryContext* InventoryContext =>
-        IsDefaultContext == false ?
+        IsInventory ?
             (AgentInventoryContext*)AgentPtr :
             throw new InvalidOperationException("Not an inventory menu");
 }
@@ -62,7 +76,7 @@ public sealed unsafe class MenuItemClickedArgs : MenuArgs
 {
     private Action<SeString?, IReadOnlyList<MenuItem>> OnOpenSubmenu { get; }
 
-    internal MenuItemClickedArgs(Action<SeString?, IReadOnlyList<MenuItem>> openSubmenu, AgentInterface* agent, bool? isDefaultAgentContext) : base(agent, isDefaultAgentContext)
+    internal MenuItemClickedArgs(Action<SeString?, IReadOnlyList<MenuItem>> openSubmenu, AtkUnitBase* addon, AgentInterface* agent, bool? isDefaultAgentContext, IReadOnlySet<nint> eventInterfaces) : base(addon, agent, isDefaultAgentContext, eventInterfaces)
     {
         OnOpenSubmenu = openSubmenu;
     }
@@ -78,7 +92,7 @@ public sealed unsafe class MenuOpenedArgs : MenuArgs
 {
     private Action<MenuItem> OnAddMenuItem { get; }
 
-    internal MenuOpenedArgs(Action<MenuItem> addMenuItem, AgentInterface* agent, bool? isDefaultAgentContext) : base(agent, isDefaultAgentContext)
+    internal MenuOpenedArgs(Action<MenuItem> addMenuItem, AtkUnitBase* addon, AgentInterface* agent, bool? isDefaultAgentContext, IReadOnlySet<nint> eventInterfaces) : base(addon, agent, isDefaultAgentContext, eventInterfaces)
     {
         OnAddMenuItem = addMenuItem;
     }
@@ -101,7 +115,7 @@ internal unsafe sealed class CtxMenu : IDisposable
 {
     [Signature("E8 ?? ?? ?? ?? 0F B7 C0 48 83 C4 60", DetourName = nameof(ContextAddonOpenByAgentDetour))]
     private readonly Hook<ContextAddonOpenByAgentDelegate> contextAddonOpenByAgentHook = null!;
-    private unsafe delegate nint ContextAddonOpenByAgentDelegate(RaptureAtkModule* module, byte* addonName, AtkUnitBase* addon, int valueCount, AtkValue* values, AgentInterface* agent, nint a7, ushort a8);
+    private unsafe delegate nint ContextAddonOpenByAgentDelegate(RaptureAtkModule* module, byte* addonName, AtkUnitBase* addon, int valueCount, AtkValue* values, AgentInterface* agent, nint a7, ushort parentAddonId);
 
     // Called when addon is clicked
     [Signature("48 89 5C 24 ?? 48 89 6C 24 ?? 56 57 41 56 48 81 EC ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 44 24 ?? 80 B9", DetourName = nameof(ContextMenuOnVf72Detour))]
@@ -120,6 +134,9 @@ internal unsafe sealed class CtxMenu : IDisposable
     private AgentInterface* SelectedAgent { get; set; }
     private bool? SelectedIsDefaultContext { get; set; }
     private List<MenuItem>? SelectedItems { get; set; }
+
+    private HashSet<nint> SelectedEventInterfaces { get; } = new();
+    private AtkUnitBase* SelectedParentAddon { get; set; }
 
     // -1 -> -inf: native items
     // 0 -> inf: selected items
@@ -344,15 +361,18 @@ internal unsafe sealed class CtxMenu : IDisposable
         SetupGenericMenu(8, 0, 5, 6, items, ref valueCount, ref values);
     }
 
-    private nint ContextAddonOpenByAgentDetour(RaptureAtkModule* module, byte* addonName, AtkUnitBase* addon, int valueCount, AtkValue* values, AgentInterface* agent, nint a7, ushort a8)
+    private nint ContextAddonOpenByAgentDetour(RaptureAtkModule* module, byte* addonName, AtkUnitBase* addon, int valueCount, AtkValue* values, AgentInterface* agent, nint a7, ushort parentAddonId)
     {
         var oldValues = values;
 
         var n = MemoryHelper.ReadStringNullTerminated((nint)addonName);
+
         if (n.Equals("ContextMenu", StringComparison.Ordinal))
         {
             MenuCallbackIds.Clear();
             SelectedAgent = agent;
+            SelectedParentAddon = module->RaptureAtkUnitManager.GetAddonById(parentAddonId);
+            SelectedEventInterfaces.Clear();
             if (SelectedAgent == AgentInventoryContext.Instance())
             {
                 SelectedItems = InventoryContextItems;
@@ -360,6 +380,18 @@ internal unsafe sealed class CtxMenu : IDisposable
             }
             else if (SelectedAgent == AgentContext.Instance())
             {
+                var menu = AgentContext.Instance()->CurrentContextMenu;
+                var handlers = new Span<Pointer<AtkEventInterface>>(menu->EventHandlerArray, 32);
+                var ids = new Span<byte>(menu->EventIdArray, 32);
+                var count = (int)values[0].UInt;
+                handlers = handlers.Slice(7, count);
+                ids = ids.Slice(7, count);
+                for (var i = 0; i < count; ++i)
+                {
+                    if (ids[i] <= 106)
+                        continue;
+                    SelectedEventInterfaces.Add((nint)handlers[i].Value);
+                }
                 SelectedItems = DefaultContextItems;
                 SelectedIsDefaultContext = true;
             }
@@ -373,7 +405,7 @@ internal unsafe sealed class CtxMenu : IDisposable
             if (SelectedItems != null)
             {
                 SelectedItems = new(SelectedItems);
-                OnMenuOpened?.Invoke(new(SelectedItems.Add, SelectedAgent, SelectedIsDefaultContext));
+                OnMenuOpened?.Invoke(new(SelectedItems.Add, SelectedParentAddon, SelectedAgent, SelectedIsDefaultContext, SelectedEventInterfaces));
                 SetupContextMenu(SelectedItems, ref valueCount, ref values);
             }
         }
@@ -384,7 +416,7 @@ internal unsafe sealed class CtxMenu : IDisposable
                 SetupContextSubMenu(SubmenuItems, ref valueCount, ref values);
         }
 
-        var ret = contextAddonOpenByAgentHook.Original(module, addonName, addon, valueCount, values, agent, a7, a8);
+        var ret = contextAddonOpenByAgentHook.Original(module, addonName, addon, valueCount, values, agent, a7, parentAddonId);
         if (values != oldValues)
             FreeExpandedContextMenuArray(values, valueCount);
         return ret;
@@ -453,8 +485,10 @@ internal unsafe sealed class CtxMenu : IDisposable
                         OpenSubmenu(name ?? item.Name, items, x, y);
                         openedSubmenu = true;
                     },
+                    SelectedParentAddon,
                     SelectedAgent,
-                    SelectedIsDefaultContext
+                    SelectedIsDefaultContext,
+                    SelectedEventInterfaces
                 ));
             }
             catch (Exception e)
@@ -469,12 +503,20 @@ internal unsafe sealed class CtxMenu : IDisposable
         }
 
 original:
-        // Eventually handled by inventorycontext here: 14022BBD0 (6.51)
+// Eventually handled by inventorycontext here: 14022BBD0 (6.51)
         return contextMenuOnVf72Hook.Original(addon, selectedIdx, a3);
     }
 
     public void Dispose()
     {
+        var manager = RaptureAtkUnitManager.Instance();
+        var menu = manager->GetAddonByName("ContextMenu");
+        var submenu = manager->GetAddonByName("AddonContextSub");
+        if (menu->IsVisible)
+            menu->FireCallbackInt(-1);
+        if (submenu->IsVisible)
+            submenu->FireCallbackInt(-1);
+
         contextAddonOpenByAgentHook?.Dispose();
         contextMenuOnVf72Hook?.Dispose();
     }
