@@ -12,6 +12,7 @@ using System.Reflection;
 using ItemIcons.IconProviders;
 using System.Collections.Generic;
 using Dalamud.Game.Text.SeStringHandling;
+using Dalamud.Game.Gui.ContextMenu;
 
 namespace ItemIcons;
 
@@ -22,7 +23,6 @@ public sealed class Plugin : IDalamudPlugin
     private Settings SettingsWindow { get; }
     public IconRenderer Renderer { get; }
     public IconManager IconManager { get; }
-    private CtxMenu ContextMenu { get; }
 
     [Signature("E8 ?? ?? ?? ?? 8B 83 ?? ?? ?? ?? C1 E8 14", DetourName = nameof(AddonSetupDetour))]
     private readonly Hook<AddonSetupDelegate> addonSetupHook = null!;
@@ -61,8 +61,7 @@ public sealed class Plugin : IDalamudPlugin
         SettingsWindow = new();
         IconManager = new();
 
-        ContextMenu = new();
-        ContextMenu.OnMenuOpened += OnMenuOpened;
+        Service.ContextMenu.OnMenuOpened += OnMenuOpened;
 
         Service.CommandManager.AddHandler("/ii", new((_, _) => OpenSettingsWindow()) { HelpMessage = "Open the Item Icons settings window." });
 
@@ -91,7 +90,6 @@ public sealed class Plugin : IDalamudPlugin
         
         Renderer.Dispose();
         IconManager.Dispose();
-        ContextMenu.Dispose();
     }
 
     private unsafe void* AddonSetupDetour(AtkUnitBase* addon)
@@ -128,19 +126,20 @@ public sealed class Plugin : IDalamudPlugin
 
     private void OnMenuOpened(MenuOpenedArgs args)
     {
-        if (!args.IsInventory)
+        if (!(args.Target is MenuTargetInventory { TargetItem: { } item }))
             return;
 
         if (!Service.Configuration.IsIconProviderEnabled(typeof(Favorites)))
             return;
 
-        var item = Item.FromInventoryItem(args._Item)!.Value;
-        if (item.ItemId == 0)
+        if (item.IsEmpty)
             return;
 
         args.AddMenuItem(new()
         {
-            Name = CtxMenu.GetPrefixedName("Favorite", 'I', 541),
+            PrefixChar = 'I',
+            PrefixColor = 541,
+            Name = "Favorite",
             OnClicked = OpenFavoriteSubmenu,
             IsSubmenu = true,
         });
@@ -148,9 +147,10 @@ public sealed class Plugin : IDalamudPlugin
 
     private void OpenFavoriteSubmenu(MenuItemClickedArgs args)
     {
-        var items = new List<MenuItem>();
+        if (!(args.Target is MenuTargetInventory { TargetItem: { } item }))
+            return;
 
-        var item = Item.FromInventoryItem(args._Item)!.Value;
+        var items = new List<MenuItem>();
 
         var hasId = Service.Configuration.FavoritedItems.TryGetValue(item.ItemId, out var existingId);
         BitmapFontIcon? favoritedIcon = hasId ? (existingId < Favorites.IconIds.Length ? Favorites.IconIds[existingId] : null) : null;
