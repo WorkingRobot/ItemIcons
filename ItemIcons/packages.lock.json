@@ -8,21 +8,6 @@
         "resolved": "2.1.13",
         "contentHash": "rMN1omGe8536f4xLMvx9NwfvpAc9YFFfeXJ1t4P4PE6Gu8WCIoFliR1sh07hM+bfODmesk/dvMbji7vNI+B/pQ=="
       },
-      "ExdSheets": {
-        "type": "Direct",
-        "requested": "[1.2.2, )",
-        "resolved": "1.2.2",
-        "contentHash": "oS1oUBhlOpUWY1Wc3SwOLzfAMuSRzBn54I8p84euVUHrUEOzRZwA9vuNKNMAIY66eT1dpc/DxT+C7LNH0nK0jg==",
-        "dependencies": {
-          "Lumina": "3.15.2"
-        }
-      },
-      "Lumina": {
-        "type": "Direct",
-        "requested": "[3.15.2, )",
-        "resolved": "3.15.2",
-        "contentHash": "EnoxYEYMepcvAoXdZhaFJiv2aiDBIPjgkgzxR/+ArOxlrALzCgheTsb5yD39a9sxNIi2tNECT93ulZvYjx8fZg=="
-      },
       "Meziantou.Analyzer": {
         "type": "Direct",
         "requested": "[2.0.162, )",
