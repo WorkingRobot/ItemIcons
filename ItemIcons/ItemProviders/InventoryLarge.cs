@@ -14,7 +14,7 @@ internal sealed unsafe class InventoryLarge : BaseItemProvider
     public override string AddonName => "InventoryLarge";
 
     public override IEnumerable<string> GetDrawnAddonNames(nint addon) =>
-        new[] { "InventoryGrid0", "InventoryGrid1" };
+        ["InventoryGrid0", "InventoryGrid1"];
 
     public override IEnumerable<AtkItemIcon> GetIcons(nint drawnAddon) =>
         Enumerable.Range(3, 35).Select(i => GetDragDropIcon(drawnAddon, (uint)i));
@@ -25,7 +25,7 @@ internal sealed unsafe class InventoryLarge : BaseItemProvider
         for (var i = 0; i < 2; ++i)
         {
             var id = (uint)i + 7;
-            if (NodeUtils.GetNodeById(&board->GetNodeById(id)->GetAsAtkComponentRadioButton()->AtkComponentBase, 3)->GetAsAtkNineGridNode()->AtkResNode.IsVisible)
+            if (NodeUtils.GetNodeById(&board->GetNodeById(id)->GetAsAtkComponentRadioButton()->AtkComponentButton.AtkComponentBase, 3)->GetAsAtkNineGridNode()->AtkResNode.IsVisible())
                 return (i * 2, (i * 2) + 1);
         }
         return (null, null);

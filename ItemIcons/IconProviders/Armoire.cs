@@ -10,7 +10,7 @@ internal sealed class Armoire : IconProvider
 
     public override string Description => "Shows the specific Armoire category that an item can be stored in.";
 
-    private readonly Dictionary<uint, int> categoryLut = new();
+    private readonly Dictionary<uint, int> categoryLut = [];
 
     public Armoire()
     {

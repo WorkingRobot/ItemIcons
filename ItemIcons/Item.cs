@@ -1,6 +1,6 @@
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
-using System;
+using FFXIVClientStructs.FFXIV.Client.UI.Misc;
 using LuminaItem = Lumina.Excel.GeneratedSheets.Item;
 
 namespace ItemIcons;
@@ -10,7 +10,7 @@ public readonly record struct Item
     public uint ItemId { get; init; }
     public bool IsHq { get; init; }
     public bool IsCollectible { get; init; }
-    public byte Stain { get; init; }
+    public byte[] Stains { get; init; }
 
     // Is Collectability if IsCollectible
     public ushort? Spiritbond { get; init; }
@@ -24,21 +24,21 @@ public readonly record struct Item
 
     public unsafe Item(InventoryItem item)
     {
-        ItemId = item.ItemID;
-        IsHq = item.Flags.HasFlag(InventoryItem.ItemFlags.HQ);
+        ItemId = item.ItemId;
+        IsHq = item.Flags.HasFlag(InventoryItem.ItemFlags.HighQuality);
         IsCollectible = item.Flags.HasFlag(InventoryItem.ItemFlags.Collectable);
-        Stain = item.Stain;
+        Stains = item.Stains.ToArray();
 
         Spiritbond = item.Spiritbond;
         Condition = item.Condition;
-        Materia = new Span<ushort>(item.Materia, 5).ToArray();
-        MateriaGrade = new Span<byte>(item.MateriaGrade, 5).ToArray();
+        Materia = item.Materia.ToArray();
+        MateriaGrade = item.MateriaGrades.ToArray();
     }
 
     public Item(PrismBoxItem item)
     {
         ItemId = item.ItemId;
-        Stain = item.Stain;
+        Stains = item.Stains.ToArray();
 
         if (IsHq = ItemId > 1000000)
             ItemId -= 1000000;
@@ -46,10 +46,10 @@ public readonly record struct Item
             ItemId -= 500000;
     }
 
-    public Item(MiragePlateItem item)
+    public Item(CharaViewItem item)
     {
         ItemId = item.ItemId;
-        Stain = item.Stain;
+        Stains = [item.Stain0Id, item.Stain1Id];
     }
 
     public Item(uint itemId)
@@ -60,6 +60,8 @@ public readonly record struct Item
             ItemId -= 1000000;
         if (IsCollectible = ItemId > 500000)
             ItemId -= 500000;
+
+        Stains = [];
     }
 
     public static Item? FromInventoryItem(InventoryItem? item) =>
@@ -68,6 +70,6 @@ public readonly record struct Item
     public static Item? FromPrismBoxItem(PrismBoxItem? item) =>
         item == null ? null : new(item.Value);
 
-    public static Item? FromMiragePlateItem(MiragePlateItem? item) =>
+    public static Item? FromMiragePlateItem(CharaViewItem? item) =>
         item == null ? null : new(item.Value);
 }

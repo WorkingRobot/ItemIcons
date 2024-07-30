@@ -12,8 +12,8 @@ internal sealed class Materia : IconProvider
 
     private readonly record struct ColorType(bool UseRedIcons, bool UseWhite, Vector3? Add, Vector3? Multiply);
 
-    private static readonly ColorType[] Colors = new ColorType[]
-    {
+    private static readonly ColorType[] Colors = 
+    [
         // new(true, false, new(-408, 61, 33), new(255, 82, 91)), // White from Red (looks like shit, don't use)
         new(false, false, new(109, -84, -396), new(61, 133, 255)), // White - 0
         new(true, false, null, null), // Red - 10
@@ -23,10 +23,10 @@ internal sealed class Materia : IconProvider
         new(false, false, null, null), // Blue - 50
         new(false, true, null, new(1f, 0.6f, 1f)), // Purple - 60
         new(false, true, new(0, 70, 100), new(1.2f, 0.5f, 0.8f)), // Pink - 70
-    };
+    ];
 
-    public static readonly ArmoryJob.TextureDescriptor[] IconsRed = new ArmoryJob.TextureDescriptor[]
-    {
+    public static readonly ArmoryJob.TextureDescriptor[] IconsRed =
+    [
         new("ui/uld/ItemDetail.tex", new(96, 36, 24, 24)),
         new("ui/uld/ItemDetail.tex", new(72, 36, 24, 24)),
         new("ui/uld/ItemDetail.tex", new(48, 36, 24, 24)),
@@ -37,10 +37,10 @@ internal sealed class Materia : IconProvider
         new("ui/uld/ItemDetail.tex", new(180, 72, 24, 24)),
         new("ui/uld/ItemDetail.tex", new(204, 24, 24, 24)),
         new("ui/uld/ItemDetail.tex", new(204, 72, 24, 24)),
-    };
+    ];
 
-    public static readonly ArmoryJob.TextureDescriptor[] IconsBlue = new ArmoryJob.TextureDescriptor[]
-    {
+    public static readonly ArmoryJob.TextureDescriptor[] IconsBlue =
+    [
         new("ui/uld/ItemDetail.tex", new(96, 12, 24, 24)),
         new("ui/uld/ItemDetail.tex", new(72, 12, 24, 24)),
         new("ui/uld/ItemDetail.tex", new(48, 12, 24, 24)),
@@ -51,7 +51,7 @@ internal sealed class Materia : IconProvider
         new("ui/uld/ItemDetail.tex", new(180, 48, 24, 24)),
         new("ui/uld/ItemDetail.tex", new(204, 0, 24, 24)),
         new("ui/uld/ItemDetail.tex", new(204, 48, 24, 24))
-    };
+    ];
 
     public static readonly Dictionary<uint, int> BaseParamToIconId = new()
     {
@@ -79,7 +79,7 @@ internal sealed class Materia : IconProvider
         [70] = 20 + 6,   // Craftsmanship
     };
 
-    public readonly Dictionary<uint, int> MateriaToIconId = new();
+    public readonly Dictionary<uint, int> MateriaToIconId = [];
 
     public Materia()
     {

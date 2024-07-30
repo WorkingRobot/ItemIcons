@@ -9,6 +9,7 @@ using ItemIcons.IconTypes;
 using System.Collections.Generic;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using Dalamud.Interface.GameFonts;
+using Dalamud.Interface.ManagedFontAtlas;
 
 namespace ItemIcons.Windows;
 
@@ -33,8 +34,8 @@ public class Settings : Window
         Size = SizeConstraints.Value.MinimumSize;
         SizeCondition = ImGuiCond.Appearing;
 
-        ItemProviderTypes = Enum.GetValues<ItemProviderCategory>().OrderBy(t => t.ToName()).ToArray();
-        IconProviders = Service.Plugin.Renderer.IconProviders.OrderBy(t => t.Name).ToArray();
+        ItemProviderTypes = [.. Enum.GetValues<ItemProviderCategory>().OrderBy(t => t.ToName())];
+        IconProviders = [.. Service.Plugin.Renderer.IconProviders.OrderBy(t => t.Name)];
     }
 
     private ItemProviderCategory? SelectedItemProvider { get; set; }
@@ -260,7 +261,7 @@ public class Settings : Window
     //    }
     //}
 
-    private static Dictionary<GameFontStyle, GameFontHandle> CachedFonts { get; } = new();
+    private static Dictionary<GameFontStyle, IFontHandle> CachedFonts { get; } = [];
     private static void DrawIcon(BaseIcon? icon, Vector2 size)
     {
         var pos = ImGui.GetCursorScreenPos();
@@ -268,17 +269,20 @@ public class Settings : Window
 
         if (icon is TextureIcon { } texture)
         {
-            var tex = Service.IconManager.GetTexture(texture.Texture);
+            var tex = Service.IconManager.GetTextureCached(texture.Texture);
             Vector2 uv0 = new(), uv1 = new(1);
             if (texture.Rect is { } rect)
             {
                 uv0 = new(rect.U, rect.V);
                 uv1 = new(rect.Width, rect.Height);
                 uv1 += uv0;
-                uv0 /= tex.Size;
-                uv1 /= tex.Size;
+                if (tex.Dimensions is { } dim)
+                {
+                    uv0 /= dim;
+                    uv1 /= dim;
+                }
             }
-            ImGui.Image(tex.ImGuiHandle, size, uv0, uv1, new(texture.MultiplyRGB, 1));
+            ImGui.Image(tex.ImGuiHandle, size, uv0, uv1, new Vector4(texture.MultiplyRGB, 1));
             if (isHovered)
                 ImGui.SetTooltip($"Id: {texture.IconId}\nScale: {texture.Scale}\nAddRGB: {texture.AddRGB}\nMultiplyRGB: {texture.MultiplyRGB}\nOffset: {texture.Offset}\nTexture: {texture.Texture}\nRect: {texture.Rect}");
         }
@@ -295,9 +299,9 @@ public class Settings : Window
                 _ => GameFontFamily.Axis
             }, text.FontSize);
             if (!CachedFonts.TryGetValue(style, out var font))
-                CachedFonts[style] = font = Service.PluginInterface.UiBuilder.GetGameFontHandle(style);
+                CachedFonts[style] = font = Service.PluginInterface.UiBuilder.FontAtlas.NewGameFontHandle(style);
             {
-                using var imFont = ImRaii.PushFont(font.ImFont);
+                using var _ = font.Push();
                 using var color = ImRaii.PushColor(ImGuiCol.Text, text.TextColor);
                 ImGui.TextUnformatted(text.Text.TextValue);
             }

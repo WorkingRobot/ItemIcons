@@ -25,7 +25,7 @@ internal sealed unsafe class InventoryBuddy : BaseItemProvider
         for (var i = 0; i < 2; ++i)
         {
             var id = (uint)i + 7;
-            if (NodeUtils.GetNodeById(&inventory->GetNodeById(id)->GetAsAtkComponentRadioButton()->AtkComponentBase, 3)->GetAsAtkNineGridNode()->AtkResNode.IsVisible)
+            if (NodeUtils.GetNodeById(&inventory->GetNodeById(id)->GetAsAtkComponentRadioButton()->AtkComponentButton.AtkComponentBase, 3)->GetAsAtkNineGridNode()->AtkResNode.IsVisible())
                 return i;
         }
         return null;

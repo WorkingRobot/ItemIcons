@@ -12,7 +12,7 @@ internal sealed unsafe class MiragePrismPrismBox : BaseItemProvider
     public override string AddonName => "MiragePrismPrismBox";
 
     public override IEnumerable<AtkItemIcon> GetIcons(nint drawnAddon) =>
-        Enumerable.Range(30, 50).Select(i => GetButtonIcon(drawnAddon, (uint)i));
+        Enumerable.Range(31, 50).Select(i => GetButtonIcon(drawnAddon, (uint)i));
 
     private static nint? GetMirageData()
     {
@@ -30,10 +30,10 @@ internal sealed unsafe class MiragePrismPrismBox : BaseItemProvider
     private static PrismBoxItem? GetMirageItem(nint data, int idx)
     {
         var dataPtr = (MiragePrismPrismBoxData*)data;
-        var i = dataPtr->PageItemIndexArray[idx];
-        if (i >= dataPtr->PrismBoxItemsSpan.Length)
+        var i = dataPtr->PageItemIndexes[idx];
+        if (i >= dataPtr->PrismBoxItems.Length)
             return null;
-        var item = dataPtr->PrismBoxItemsSpan[i];
+        var item = dataPtr->PrismBoxItems[i];
         return item;
     }
 

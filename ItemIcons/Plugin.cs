@@ -13,6 +13,8 @@ using ItemIcons.IconProviders;
 using System.Collections.Generic;
 using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Game.Gui.ContextMenu;
+using Dalamud.Utility;
+using System.Linq;
 
 namespace ItemIcons;
 
@@ -24,27 +26,27 @@ public sealed class Plugin : IDalamudPlugin
     public IconRenderer Renderer { get; }
     public IconManager IconManager { get; }
 
-    [Signature("E8 ?? ?? ?? ?? 8B 83 ?? ?? ?? ?? C1 E8 14", DetourName = nameof(AddonSetupDetour))]
+    [Signature("E8 ?? ?? ?? ?? 8B 8F ?? ?? ?? ?? 8B D1", DetourName = nameof(AddonSetupDetour))]
     private readonly Hook<AddonSetupDelegate> addonSetupHook = null!;
-    [Signature("E8 ?? ?? ?? ?? 48 8B 7C 24 ?? 41 8B C6", DetourName = nameof(AddonFinalizeDetour))]
+    [Signature("E8 ?? ?? ?? ?? 48 83 EF 01 75 D5", DetourName = nameof(AddonFinalizeDetour))]
     private readonly Hook<AddonFinalizeDelegate> addonFinalizeHook = null!;
 
     private unsafe delegate void* AddonSetupDelegate(AtkUnitBase* addon);
     private unsafe delegate void AddonFinalizeDelegate(AtkUnitManager* manager, AtkUnitBase** addon);
 
     // Client::UI::UIModule.Update
-    [Signature("48 8B C4 41 56 48 83 EC 60 FF 81 E4 07 00 00", DetourName = nameof(UIModuleUpdateDetour))]
+    [Signature("48 8B C4 41 56 48 83 EC 60 FF 81", DetourName = nameof(UIModuleUpdateDetour))]
     private readonly Hook<UIModuleUpdateDelegate> uiModuleUpdateHook = null!;
     private unsafe delegate bool UIModuleUpdateDelegate(UIModule* module, float frameDelta);
 
-    [Signature("E8 ?? ?? ?? ?? 48 8B 45 28 48 8B CE")]
+    [Signature("E8 ?? ?? ?? ?? 40 84 F6 74 2A")]
     public readonly AtkUldManagerUpdateNodeTreeDelegate atkUldManagerUpdateNodeTree = null!;
     public unsafe delegate void AtkUldManagerUpdateNodeTreeDelegate(AtkUldManager* manager, AtkResNode* node, AtkResNode* nodeParent, bool isShallowUpdate);
 
-    public Plugin([RequiredVersion("1.0")] DalamudPluginInterface pluginInterface)
+    public Plugin(IDalamudPluginInterface pluginInterface)
     {
-        Service.Plugin = this;
-        pluginInterface.Create<Service>();
+        Service.Initialize(this, pluginInterface);
+
         try
         {
             Service.Configuration = pluginInterface.GetPluginConfig() as Configuration ?? new();
@@ -73,6 +75,29 @@ public sealed class Plugin : IDalamudPlugin
         addonFinalizeHook.Enable();
 
         uiModuleUpdateHook.Enable();
+
+        HashSet<uint> rows = [];
+        foreach (var item in LuminaSheets.ItemSheet)
+        {
+            if (item.ClassJobCategory.Value is { } cat)
+            {
+                if (rows.Add(cat.RowId))
+                    Log.Debug($"[{cat.RowId}] = {cat.Name.ToDalamudString().TextValue}");
+            }
+        }
+
+        var j = (ArmoryJob)Renderer.IconProviders.First(p => p is ArmoryJob);
+        var knownCats = j.CategoryIcons.Keys.ToHashSet();
+        foreach (var cat in rows)
+        {
+            if (!knownCats.Contains(cat))
+                Log.Debug($"Unknown category: {cat}");
+        }
+        foreach (var cat in knownCats)
+        {
+            if (!rows.Contains(cat))
+                Log.Debug($"Unused category: {cat}");
+        }
     }
 
     public void Dispose()
@@ -124,7 +149,7 @@ public sealed class Plugin : IDalamudPlugin
         }
     }
 
-    private void OnMenuOpened(MenuOpenedArgs args)
+    private void OnMenuOpened(IMenuOpenedArgs args)
     {
         if (!(args.Target is MenuTargetInventory { TargetItem: { } item }))
             return;
@@ -145,7 +170,7 @@ public sealed class Plugin : IDalamudPlugin
         });
     }
 
-    private void OpenFavoriteSubmenu(MenuItemClickedArgs args)
+    private void OpenFavoriteSubmenu(IMenuItemClickedArgs args)
     {
         if (!(args.Target is MenuTargetInventory { TargetItem: { } item }))
             return;

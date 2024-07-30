@@ -11,15 +11,15 @@ internal sealed class Favorites : IconProvider
 
     public override string Description => "User-selected favorites! Pick and choose which items you want to favorite! (Works based on the item, not the actual item stack or inventory slot)";
     
-    public static readonly BitmapFontIcon[] IconIds = new BitmapFontIcon[]
-    {
+    public static readonly BitmapFontIcon[] IconIds =
+    [
         BitmapFontIcon.ElementFire,
         BitmapFontIcon.ElementIce,
         BitmapFontIcon.ElementWind,
         BitmapFontIcon.ElementEarth,
         BitmapFontIcon.ElementLightning,
         BitmapFontIcon.ElementWater,
-    };
+    ];
 
     public Favorites()
     {

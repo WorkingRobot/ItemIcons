@@ -12,8 +12,7 @@ public abstract class BaseItemProvider : IDisposable
 
     public abstract string AddonName { get; }
 
-    public virtual IEnumerable<string> GetDrawnAddonNames(nint addon) =>
-        new[] { AddonName };
+    public virtual IEnumerable<string> GetDrawnAddonNames(nint addon) => [AddonName];
 
     // Once SetupAddon is called on the addon, this should never return a different size unless you use InvalidateAddonCache
     public abstract IEnumerable<AtkItemIcon> GetIcons(nint drawnAddon);
@@ -104,7 +103,7 @@ public abstract class BaseItemProvider : IDisposable
     public static unsafe AtkComponentButton* GetBaseButtonIcon(AtkUnitBase* addon, uint id)
     {
         var node = NodeUtils.GetAsAtkComponent<AtkComponentBase>(addon->GetNodeById(id));
-        var buttonNode = NodeUtils.GetAsAtkComponent<AtkComponentButton>(NodeUtils.GetNodeById(node, 3));
+        var buttonNode = NodeUtils.GetAsAtkComponent<AtkComponentButton>(NodeUtils.GetNodeById(node, 6));
         return buttonNode;
     }
 

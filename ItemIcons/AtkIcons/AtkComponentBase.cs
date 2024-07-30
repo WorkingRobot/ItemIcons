@@ -9,7 +9,7 @@ internal abstract unsafe class AtkComponentBaseItemIcon : AtkItemIcon
 
     protected abstract uint AttachedSiblingNodeId { get; }
 
-    public AtkComponentBaseItemIcon(AtkComponentBase* node) : base(&node->OwnerNode->AtkResNode)
+    protected AtkComponentBaseItemIcon(AtkComponentBase* node) : base(&node->OwnerNode->AtkResNode)
     {
         Component = node;
     }

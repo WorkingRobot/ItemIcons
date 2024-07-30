@@ -13,7 +13,7 @@ internal abstract unsafe class SingleIconProvider : IconProvider
 
     protected SingleIconProvider()
     {
-        Icons = new[] { Icon };
+        Icons = [Icon];
         RegisterIcons();
     }
 }

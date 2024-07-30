@@ -1,7 +1,12 @@
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
+using FFXIVClientStructs.FFXIV.Client.UI.Misc;
 using ItemIcons.AtkIcons;
+using ItemIcons.Utils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace ItemIcons.ItemProviders;
 
@@ -30,27 +35,29 @@ internal sealed unsafe class MiragePrismMiragePlate : BaseItemProvider
     public override string AddonName => "MiragePrismMiragePlate";
 
     public override IEnumerable<AtkItemIcon> GetIcons(nint drawnAddon) =>
-        Enumerable.Range(63, 12).Select(i => GetBaseButtonIcon(drawnAddon, (uint)i));
+        Enumerable.Range(64, 12).Select(i => GetBaseButtonIcon(drawnAddon, (uint)i));
 
-    private static MiragePlateItem[]? GetMiragePlateItems()
+    private static CharaViewItem[]? GetMiragePlateItems()
     {
         var agent = AgentMiragePrismMiragePlate.Instance();
         if (agent == null)
             return null;
 
-        return agent->PlateItemsSpan.ToArray();
+        var items = agent->CharaView.Items;
+        items = new Span<CharaViewItem>(Unsafe.AsPointer(ref Unsafe.AddByteOffset(ref items[0], 8)), items.Length);
+        return items.ToArray();
     }
 
     public override IEnumerable<Item?> GetItems(nint addon)
     {
         var items = GetMiragePlateItems();
         if (items == null)
-            return Enumerable.Empty<Item?>();
+            return [];
 
         var slots = new Item?[12];
         foreach (var item in items)
         {
-            var slotIdx = (MiragePlateItemSlotType)item.EquipType switch
+            var slotIdx = (MiragePlateItemSlotType)item.SlotId switch
             {
                 MiragePlateItemSlotType.Offhand => 0,
                 MiragePlateItemSlotType.Mainhand => 1,

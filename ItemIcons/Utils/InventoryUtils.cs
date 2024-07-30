@@ -12,7 +12,7 @@ internal static unsafe class InventoryUtils
 {
     public sealed class ContainerWrapper : IReadOnlyList<InventoryItem?>
     {
-        public int Count => (int)sorter->Items.Size();
+        public int Count => sorter->Items.Count;
 
         private readonly ItemOrderModuleSorter* sorter;
 
@@ -23,7 +23,7 @@ internal static unsafe class InventoryUtils
 
         public InventoryItem? GetItem(int idx)
         {
-            var orderData = sorter->Items.Span[idx].Value;
+            var orderData = sorter->Items[idx].Value;
             var container = (sorter->InventoryType + orderData->Page).GetContainerRaw();
             var ptr = container->GetInventorySlot(orderData->Slot);
             return ptr == null ? null : *ptr;
@@ -56,7 +56,7 @@ internal static unsafe class InventoryUtils
 
         public InventoryItem* GetItemPtr(int idx)
         {
-            var orderData = sorter->Items.Span[(Page * Count) + idx].Value;
+            var orderData = sorter->Items[(Page * Count) + idx].Value;
             var container = (sorter->InventoryType + orderData->Page).GetContainerRaw();
             var ptr = container->GetInventorySlot(orderData->Slot);
             return ptr;
@@ -64,7 +64,7 @@ internal static unsafe class InventoryUtils
 
         public InventoryItem? GetItem(int idx)
         {
-            var orderData = sorter->Items.Span[(Page * Count) + idx].Value;
+            var orderData = sorter->Items[(Page * Count) + idx].Value;
             var container = (sorter->InventoryType + orderData->Page).GetContainerRaw();
             var ptr = container->GetInventorySlot(orderData->Slot);
             return ptr == null ? null : *ptr;

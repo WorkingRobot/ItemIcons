@@ -12,8 +12,7 @@ internal sealed unsafe class Inventory : BaseItemProvider
 
     public override string AddonName => "Inventory";
 
-    public override IEnumerable<string> GetDrawnAddonNames(nint addon) =>
-        new[] { "InventoryGrid" };
+    public override IEnumerable<string> GetDrawnAddonNames(nint addon) => ["InventoryGrid"];
 
     public override IEnumerable<AtkItemIcon> GetIcons(nint drawnAddon) =>
         Enumerable.Range(3, 35).Select(i => GetDragDropIcon(drawnAddon, (uint)i));
@@ -24,7 +23,7 @@ internal sealed unsafe class Inventory : BaseItemProvider
         for (var i = 0; i < 4; ++i)
         {
             var id = (uint)i + 8;
-            if (NodeUtils.GetNodeById(&board->GetNodeById(id)->GetAsAtkComponentRadioButton()->AtkComponentBase, 3)->GetAsAtkNineGridNode()->AtkResNode.IsVisible)
+            if (NodeUtils.GetNodeById(&board->GetNodeById(id)->GetAsAtkComponentRadioButton()->AtkComponentButton.AtkComponentBase, 3)->GetAsAtkNineGridNode()->AtkResNode.IsVisible())
                 return i;
         }
         return null;
@@ -34,7 +33,7 @@ internal sealed unsafe class Inventory : BaseItemProvider
     {
         var page = GetSelectedInventoryPage(addon);
         if (page == null)
-            return Enumerable.Empty<Item?>();
+            return [];
 
         return ContainerType.Inventory.GetContainerPage(page.Value).Select(Item.FromInventoryItem);
     }

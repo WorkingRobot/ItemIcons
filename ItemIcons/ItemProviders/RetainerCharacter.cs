@@ -12,10 +12,10 @@ internal sealed unsafe class RetainerCharacter : BaseItemProvider
 
     public override string AddonName => "RetainerCharacter";
 
-    private static readonly uint[] IconOrder = new uint[]
-    {
+    private static readonly uint[] IconOrder =
+    [
         137, 138, 139, 140, 142, 141, 143, 144, 145, 146, 147, 148 // No soul crystal
-    };
+    ];
 
     public override IEnumerable<AtkItemIcon> GetIcons(nint drawnAddon) =>
         IconOrder.Select(i => GetBaseDragDropIcon(drawnAddon, i));

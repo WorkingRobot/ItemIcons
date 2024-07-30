@@ -9,7 +9,7 @@ internal static unsafe class NodeManager
     {
         var imageNode = Construct<AtkImageNode>();
         imageNode->AtkResNode.Type = NodeType.Image;
-        imageNode->AtkResNode.NodeID = nodeId;
+        imageNode->AtkResNode.NodeId = nodeId;
         imageNode->AtkResNode.NodeFlags = NodeFlags.AnchorLeft | NodeFlags.AnchorTop | NodeFlags.Visible | NodeFlags.Enabled | NodeFlags.EmitsEvents;
         imageNode->AtkResNode.DrawFlags = 0;
         imageNode->WrapMode = 1;
@@ -54,7 +54,7 @@ internal static unsafe class NodeManager
     {
         var textNode = Construct<AtkTextNode>();
         textNode->AtkResNode.Type = NodeType.Text;
-        textNode->AtkResNode.NodeID = nodeId;
+        textNode->AtkResNode.NodeId = nodeId;
         textNode->AtkResNode.NodeFlags = NodeFlags.AnchorLeft | NodeFlags.AnchorTop | NodeFlags.Visible | NodeFlags.Enabled | NodeFlags.EmitsEvents;
         textNode->AtkResNode.DrawFlags = 0;
 

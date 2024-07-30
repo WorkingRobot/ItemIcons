@@ -28,7 +28,7 @@ public sealed unsafe class IconRenderer : IDisposable
                 throw new ArgumentException($"Failed to create {t}"))
             .ToArray();
 
-    private readonly Dictionary<string, AtkItemIcon[]> addons = new();
+    private readonly Dictionary<string, AtkItemIcon[]> addons = [];
 
     private AtkItemIcon? DragNode { get; set; }
     private nint? DraggedNode { get; set; }
@@ -67,7 +67,7 @@ public sealed unsafe class IconRenderer : IDisposable
         var addonPtr = (AtkUnitBase*)addon;
         if (addonPtr->RootNode == null)
             return;
-        if (!addonPtr->RootNode->IsVisible)
+        if (!addonPtr->RootNode->IsVisible())
             return;
 
         if (!Config.IsItemProviderEnabled(provider))
@@ -113,7 +113,7 @@ public sealed unsafe class IconRenderer : IDisposable
             }
 
             // Icon isn't visible (could be dragged around)
-            if (!icon.Node->IsVisible)
+            if (!icon.Node->IsVisible())
                 continue;
 
             RenderIcon(icon, item, iconProviders, onlyOneIcon);
@@ -126,7 +126,7 @@ public sealed unsafe class IconRenderer : IDisposable
         {
             var providedIcons = GetIconsUncached(provider, addonName, addon);
             if (providedIcons == null)
-                return Array.Empty<AtkItemIcon>();
+                return [];
             addons[addonName] = icons = providedIcons;
         }
         return icons;
@@ -179,7 +179,7 @@ public sealed unsafe class IconRenderer : IDisposable
 
     public void SetupAddon(AtkUnitBase* addon)
     {
-        var name = GetAddonName(addon);
+        var name = addon->NameString;
         Log.Debug($"Setup {name}");
         foreach (var provider in ItemProviders)
         {
@@ -202,7 +202,7 @@ public sealed unsafe class IconRenderer : IDisposable
 
     public void FinalizeAddon(AtkUnitBase* addon)
     {
-        var name = GetAddonName(addon);
+        var name = addon->NameString;
         Log.Debug($"Finalize {name}");
         foreach (var provider in ItemProviders)
         {
@@ -214,7 +214,4 @@ public sealed unsafe class IconRenderer : IDisposable
             }
         }
     }
-
-    private static string GetAddonName(AtkUnitBase* addon) =>
-        MemoryHelper.ReadString((nint)addon->Name, 0x20);
 }

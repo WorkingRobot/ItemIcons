@@ -63,7 +63,7 @@ internal static unsafe class NodeUtils
         for (var i = 0; i < node->UldManager.NodeListCount; i++)
         {
             var n = node->UldManager.NodeList[i];
-            if (n->NodeID == id)
+            if (n->NodeId == id)
                 return n;
         }
         return null;

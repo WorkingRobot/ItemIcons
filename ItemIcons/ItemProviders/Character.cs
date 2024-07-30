@@ -12,10 +12,10 @@ internal sealed unsafe class Character : BaseItemProvider
 
     public override string AddonName => "Character";
 
-    private static readonly uint[] IconOrder = new uint[]
-    {
-        48, 49, 50, 51, 53, 52, 54, 55, 56, 57, 58, 59, 60
-    };
+    private static readonly uint[] IconOrder =
+    [
+        49, 50, 51, 52, 54, 53, 55, 56, 57, 58, 59, 60, 61
+    ];
 
     public override IEnumerable<AtkItemIcon> GetIcons(nint drawnAddon) =>
         IconOrder.Select(i => GetBaseDragDropIcon(drawnAddon, i));

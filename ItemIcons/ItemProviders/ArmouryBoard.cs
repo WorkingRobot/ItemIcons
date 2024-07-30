@@ -36,12 +36,12 @@ internal sealed unsafe class ArmouryBoard : BaseItemProvider
         var board = (AtkUnitBase*)addon;
         foreach(var (id, type) in TabToInventoryType)
         {
-            if (NodeUtils.GetNodeById(&board->GetNodeById(id)->GetAsAtkComponentRadioButton()->AtkComponentBase, 6)->GetAsAtkImageNode()->AtkResNode.IsVisible)
+            if (NodeUtils.GetNodeById(&board->GetNodeById(id)->GetAsAtkComponentRadioButton()->AtkComponentButton.AtkComponentBase, 6)->GetAsAtkImageNode()->AtkResNode.IsVisible())
                 return type;
         }
         return null;
     }
 
     public override IEnumerable<Item?> GetItems(nint addon) =>
-        GetSelectedInventoryType(addon)?.GetContainer()?.Select(Item.FromInventoryItem) ?? Enumerable.Empty<Item?>();
+        GetSelectedInventoryType(addon)?.GetContainer()?.Select(Item.FromInventoryItem) ?? [];
 }

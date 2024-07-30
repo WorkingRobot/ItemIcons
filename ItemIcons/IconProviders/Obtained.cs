@@ -15,9 +15,9 @@ internal sealed class Obtained : SingleIconProvider
 
     public override BaseIcon Icon => new TextureIcon("ui/uld/RecipeNoteBook.tex", new(64, 30, 20, 20));
 
-    private readonly HashSet<uint> unobtainableItems = new();
-    private readonly HashSet<uint> obtainedItems = new();
-    private readonly Dictionary<uint, DateTimeOffset> unobtainedItems = new();
+    private readonly HashSet<uint> unobtainableItems = [];
+    private readonly HashSet<uint> obtainedItems = [];
+    private readonly Dictionary<uint, DateTimeOffset> unobtainedItems = [];
 
     private static readonly TimeSpan UnobtainedExpirationTime = TimeSpan.FromSeconds(15);
 

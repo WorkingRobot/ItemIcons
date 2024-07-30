@@ -18,7 +18,7 @@ internal static unsafe class DragDropS
 
     public static AtkItemIcon? GetDraggedIcon()
     {
-        var m = &AtkStage.GetSingleton()->DragDropManager;
+        var m = &AtkStage.Instance()->DragDropManager;
         if (m->DragDrop1 != null)
         {
             var node = (AtkComponentDragDrop*)m->DragDrop1->GetComponent();

@@ -11,10 +11,10 @@ internal sealed unsafe class Gathering : BaseItemProvider
 
     public override string AddonName => "Gathering";
 
-    private static readonly uint[] IconOrder = new uint[]
-    {
-        6, 7, 8, 9, 10, 11, 12, 13
-    };
+    private static readonly uint[] IconOrder =
+    [
+        17, 18, 19, 20, 21, 22, 23, 24
+    ];
 
     public override IEnumerable<AtkItemIcon> GetIcons(nint drawnAddon) =>
         IconOrder.Select(i => GetCheckboxIcon(drawnAddon, i));
@@ -22,16 +22,7 @@ internal sealed unsafe class Gathering : BaseItemProvider
     public override IEnumerable<Item?> GetItems(nint addon)
     {
         var gathering = (AddonGathering*)addon;
-        var itemIds = new uint[] {
-            gathering->GatheredItemId1,
-            gathering->GatheredItemId2,
-            gathering->GatheredItemId3,
-            gathering->GatheredItemId4,
-            gathering->GatheredItemId5,
-            gathering->GatheredItemId6,
-            gathering->GatheredItemId7,
-            gathering->GatheredItemId8
-        };
+        var itemIds = gathering->ItemIds.ToArray();
 
         return itemIds.Select(i => (Item?)new Item(i));
     }

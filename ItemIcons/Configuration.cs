@@ -29,7 +29,7 @@ public record ItemProviderCategoryConfig
     public bool Enabled { get; set; } = true;
     public bool ShowOnlyOne { get; set; }
 
-    public ValueEqualityDictionary<string, bool> IconProviders { get; set; } = new();
+    public ValueEqualityDictionary<string, bool> IconProviders { get; set; } = [];
 }
 
 [Serializable]
@@ -37,12 +37,12 @@ public record Configuration : IPluginConfiguration
 {
     public int Version { get; set; }
 
-    public ValueEqualityDictionary<ItemProviderCategory, ItemProviderCategoryConfig> ItemProviders { get; set; } = new();
+    public ValueEqualityDictionary<ItemProviderCategory, ItemProviderCategoryConfig> ItemProviders { get; set; } = [];
     
     // Global disable for a specific icon provider. If true, the ItemProvider must also have the icon provider as true
-    public ValueEqualityDictionary<string, bool> IconProviders { get; set; } = new();
+    public ValueEqualityDictionary<string, bool> IconProviders { get; set; } = [];
 
-    public ValueEqualityDictionary<uint, uint> FavoritedItems { get; set; } = new();
+    public ValueEqualityDictionary<uint, uint> FavoritedItems { get; set; } = [];
 
     public bool IsItemProviderEnabled(BaseItemProvider provider) =>
         !ItemProviders.TryGetValue(provider.Category, out var config) || config.Enabled;

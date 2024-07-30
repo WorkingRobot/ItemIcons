@@ -17,7 +17,7 @@ public abstract unsafe class IconProvider
     public abstract uint? GetMatch(Item item);
 
     private static readonly uint IdOffset = (uint)Random.Shared.Next(1000000);
-    private static readonly List<BaseIcon> IdRegistry = new();
+    private static readonly List<BaseIcon> IdRegistry = [];
 
     protected void RegisterIcons()
     {

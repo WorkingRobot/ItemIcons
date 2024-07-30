@@ -45,7 +45,7 @@ internal sealed record TextureIcon : BaseIcon, IEquatable<TextureIcon>
 
     private unsafe TextureIcon(string texture, uint? iconId, UldRect? rect)
     {
-        if (texture.Contains("_hr1"))
+        if (texture.Contains("_hr1", StringComparison.Ordinal))
             throw new ArgumentException("High res textures are unsupported");
 
         Texture = texture;
@@ -58,7 +58,7 @@ internal sealed record TextureIcon : BaseIcon, IEquatable<TextureIcon>
         Asset->AtkTexture.Ctor();
         if (iconId != null)
         {
-            if (Asset->AtkTexture.LoadIconTexture((int)iconId.Value, 0) != 0)
+            if (Asset->AtkTexture.LoadIconTexture(iconId.Value, 0) != 0)
                 throw new ArgumentException($"Icon id {iconId.Value} (Texture: {Texture}) not found", nameof(iconId));
         }
         else
@@ -113,7 +113,7 @@ internal sealed record TextureIcon : BaseIcon, IEquatable<TextureIcon>
     }
 
     private static string LookupIcon(uint icon) =>
-        Service.TextureProvider.GetIconPath(icon, flags: ITextureProvider.IconFlags.None) ??
+        Service.TextureProvider.GetIconPath(new(icon, hiRes: false)) ??
         throw new ArgumentOutOfRangeException(nameof(icon), icon, "Icon not found");
 
     private const int IconSize = 18;

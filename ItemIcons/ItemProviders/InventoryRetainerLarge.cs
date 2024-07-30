@@ -17,7 +17,7 @@ internal sealed unsafe class InventoryRetainerLarge : BaseItemProvider
     public override IEnumerable<string> GetDrawnAddonNames(nint addon)
     {
         if (addon == nint.Zero)
-            return new[] { "RetainerGrid0", "RetainerGrid1", "RetainerGrid2", "RetainerGrid3", "RetainerGrid4" };
+            return ["RetainerGrid0", "RetainerGrid1", "RetainerGrid2", "RetainerGrid3", "RetainerGrid4"];
 
         var (pageA, pageB) = GetSelectedInventoryTypes(addon);
         var ret = new List<string>(2);
@@ -41,7 +41,7 @@ internal sealed unsafe class InventoryRetainerLarge : BaseItemProvider
         for (var i = 0; i < 3; ++i)
         {
             var id = (uint)i + 3;
-            if (NodeUtils.GetNodeById(&board->GetNodeById(id)->GetAsAtkComponentRadioButton()->AtkComponentBase, 3)->GetAsAtkNineGridNode()->AtkResNode.IsVisible)
+            if (NodeUtils.GetNodeById(&board->GetNodeById(id)->GetAsAtkComponentRadioButton()->AtkComponentButton.AtkComponentBase, 3)->GetAsAtkNineGridNode()->AtkResNode.IsVisible())
                 return (i * 2, i != 2 ? (i * 2) + 1 : null);
         }
         return (null, null);

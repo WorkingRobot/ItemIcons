@@ -13,8 +13,7 @@ internal sealed unsafe class InventoryRetainer : BaseItemProvider
 
     public override string AddonName => "InventoryRetainer";
 
-    public override IEnumerable<string> GetDrawnAddonNames(nint addon) =>
-        new[] { "RetainerGrid" };
+    public override IEnumerable<string> GetDrawnAddonNames(nint addon) => ["RetainerGrid"];
 
     public override IEnumerable<AtkItemIcon> GetIcons(nint drawnAddon) =>
         Enumerable.Range(3, 35)
@@ -29,7 +28,7 @@ internal sealed unsafe class InventoryRetainer : BaseItemProvider
         for (var i = 0; i < 5; ++i)
         {
             var id = (uint)i + 3;
-            if (NodeUtils.GetNodeById(&board->GetNodeById(id)->GetAsAtkComponentRadioButton()->AtkComponentBase, 3)->GetAsAtkImageNode()->AtkResNode.IsVisible)
+            if (NodeUtils.GetNodeById(&board->GetNodeById(id)->GetAsAtkComponentRadioButton()->AtkComponentButton.AtkComponentBase, 3)->GetAsAtkImageNode()->AtkResNode.IsVisible())
                 return i;
         }
         return null;
@@ -40,6 +39,6 @@ internal sealed unsafe class InventoryRetainer : BaseItemProvider
         var page = GetSelectedInventoryPage(addon);
         return page != null ?
             ContainerType.Retainer.GetContainerPage(page.Value, 35).Select(Item.FromInventoryItem) :
-            Enumerable.Empty<Item?>();
+            [];
     }
 }

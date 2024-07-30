@@ -12,9 +12,9 @@ internal sealed unsafe class RetainerTaskResult : BaseItemProvider
 
     public override string AddonName => "RetainerTaskResult";
 
-    private delegate AtkResNode* GetDuplicatedNodeDelegate(AtkUldManager* uldManager, int nodeId, int idx, int offset);
+    private delegate AtkResNode* GetDuplicatedNodeDelegate(AtkUldManager* @this, int nodeId, int idx, int offset);
 
-    [Signature("45 33 DB 41 8B C1 44 8B D2 4C 8B C9 45 85 C0 74")]
+    [Signature("E8 ?? ?? ?? ?? 45 8B DD")]
     private readonly GetDuplicatedNodeDelegate getDuplicatedNode = null!;
 
     public RetainerTaskResult() =>

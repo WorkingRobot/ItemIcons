@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <TargetFramework>net7.0-windows</TargetFramework>
+    <TargetFramework>net8.0-windows</TargetFramework>
     <Platforms>x64</Platforms>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -24,16 +24,15 @@
    <PropertyGroup Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))'">
     <DalamudLibPath>$(DALAMUD_HOME)/</DalamudLibPath>
   </PropertyGroup>
-  
-   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-     <WarningLevel>7</WarningLevel>
-   </PropertyGroup>
-  
-   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-     <WarningLevel>7</WarningLevel>
-   </PropertyGroup>
+    
   <ItemGroup>
-    <PackageReference Include="DalamudPackager" Version="2.1.12" />
+    <PackageReference Include="DalamudPackager" Version="2.1.13" />
+    <PackageReference Include="ExdSheets" Version="1.2.2" />
+    <PackageReference Include="Lumina" Version="3.15.2" ExcludeAssets="all" />
+    <PackageReference Include="Meziantou.Analyzer" Version="2.0.162">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <ProjectReference Include="..\LuminaSupplemental\src\LuminaSupplemental.Excel\LuminaSupplemental.Excel.csproj" />
     <Reference Include="FFXIVClientStructs">
       <HintPath>$(DalamudLibPath)FFXIVClientStructs.dll</HintPath>

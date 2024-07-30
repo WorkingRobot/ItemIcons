@@ -10,7 +10,7 @@ internal sealed class MateriaText : IconProvider
 
     public override string Description => "Shows the specific stat increase that a materia will provide.";
 
-    public readonly Dictionary<uint, int> MateriaToIconId = new();
+    public readonly Dictionary<uint, int> MateriaToIconId = [];
 
     public readonly Dictionary<uint, string> ParamAbbreviations = new()
     {
