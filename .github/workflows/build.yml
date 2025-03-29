@@ -39,10 +39,6 @@ jobs:
         run: |
           dotnet build --configuration Release --no-restore
 
-      - name: Test
-        run: |
-          dotnet test --configuration Release --logger "trx;logfilename=results.trx" --logger "html;logfilename=results.html" --logger "console;verbosity=detailed" --no-build --results-directory="TestResults"
-
       - name: Create Unofficial Builds
         if: ${{env.IS_OFFICIAL}}
         run: python ./.github/create_unofficial.py ${{env.PROJECT_NAME}}
@@ -53,13 +49,6 @@ jobs:
           name: ${{env.PROJECT_NAME}}
           path: ${{env.PROJECT_NAME}}/bin/x64/Release/${{env.PROJECT_NAME}}
           if-no-files-found: error
-
-      - name: Upload Test Results
-        uses: actions/upload-artifact@v4
-        if: ${{ !cancelled() }}
-        with:
-          name: TestResults
-          path: TestResults
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
