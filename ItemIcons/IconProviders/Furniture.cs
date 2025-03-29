@@ -16,7 +16,7 @@ internal sealed class Furniture : SingleIconProvider
 
     public Furniture()
     {
-        furnitureItems = LuminaSheets.HousingFurnitureSheet.Select(f => f.Item.Row).ToImmutableSortedSet();
+        furnitureItems = LuminaSheets.HousingFurnitureSheet.Select(f => f.Item.RowId).ToImmutableSortedSet();
     }
 
     public override bool Matches(Item item) =>

@@ -1,34 +1,46 @@
 {
   "version": 1,
   "dependencies": {
-    "net8.0-windows7.0": {
+    "net9.0-windows7.0": {
       "DalamudPackager": {
         "type": "Direct",
-        "requested": "[2.1.13, )",
-        "resolved": "2.1.13",
-        "contentHash": "rMN1omGe8536f4xLMvx9NwfvpAc9YFFfeXJ1t4P4PE6Gu8WCIoFliR1sh07hM+bfODmesk/dvMbji7vNI+B/pQ=="
+        "requested": "[12.0.0, )",
+        "resolved": "12.0.0",
+        "contentHash": "J5TJLV3f16T/E2H2P17ClWjtfEBPpq3yxvqW46eN36JCm6wR+EaoaYkqG9Rm5sHqs3/nK/vKjWWyvEs/jhKoXw=="
+      },
+      "DotNet.ReproducibleBuilds": {
+        "type": "Direct",
+        "requested": "[1.2.25, )",
+        "resolved": "1.2.25",
+        "contentHash": "xCXiw7BCxHJ8pF6wPepRUddlh2dlQlbr81gXA72hdk4FLHkKXas7EH/n+fk5UCA/YfMqG1Z6XaPiUjDbUNBUzg=="
       },
       "Meziantou.Analyzer": {
         "type": "Direct",
-        "requested": "[2.0.162, )",
-        "resolved": "2.0.162",
-        "contentHash": "lU5ZkiNx6Jj++yYhkUkn2qsgl+PSfAy+BDFc0IkoVVeSCnmUOGBa0Eb1XzGLAeyAuIoz6vYN4J97Q/uiGdIkhw=="
+        "requested": "[2.0.184, )",
+        "resolved": "2.0.184",
+        "contentHash": "+b96w2tVJNI9CR4naLcNFWfGDIwXheCO/3RsXkgq+hphqjIvLmXQM+5U4h7AZQbzTDFjXiulr4ws1L5/4xo0WQ=="
       },
       "CSVFile": {
         "type": "Transitive",
-        "resolved": "3.1.0",
-        "contentHash": "yz/FptkwDL0bxhaxoyrFPI5SyxUUfuZtbH1E2yLiHHFZFFrSXNnWJHfXSt5Anvy1gWpHCLpC520Bxy6G/Opp1g=="
+        "resolved": "3.2.0",
+        "contentHash": "sEVTg2rdBomJbh5bKCQqBtTgA0ojnkMab/hGwQ73UWy20n8jcJTLZ2dDKmnKPD0kTHMEeJK9TXpCgHn+RMcBYg=="
       },
       "CsvHelper": {
         "type": "Transitive",
         "resolved": "30.0.1",
         "contentHash": "rcZtgbWR+As4G3Vpgx0AMNmShGuQLFjkHAPIIflzrfkJCx8/AOd4m96ZRmiU1Wi39qS5UVjV0P8qdgqOo5Cwyg=="
       },
+      "Sylvan.Data.Csv": {
+        "type": "Transitive",
+        "resolved": "1.3.9",
+        "contentHash": "ej6VghLaUn5/GK6jGFvd5aHn3Wue+Yp2tpmyI507PBRb/lFA6WAPS+3yKGr5wtFzh0zaE53CnCxhjc0ZW8xu3g=="
+      },
       "luminasupplemental.excel": {
         "type": "Project",
         "dependencies": {
-          "CSVFile": "[3.1.0, )",
-          "CsvHelper": "[30.0.1, )"
+          "CSVFile": "[3.2.0, )",
+          "CsvHelper": "[30.0.1, )",
+          "Sylvan.Data.Csv": "[1.3.9, )"
         }
       }
     }

@@ -1,6 +1,6 @@
 using Lumina.Excel;
-using Lumina.Excel.GeneratedSheets;
-using LuminaItem = Lumina.Excel.GeneratedSheets.Item;
+using Lumina.Excel.Sheets;
+using LuminaItem = Lumina.Excel.Sheets.Item;
 
 namespace ItemIcons;
 

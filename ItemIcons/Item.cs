@@ -1,7 +1,7 @@
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Client.UI.Misc;
-using LuminaItem = Lumina.Excel.GeneratedSheets.Item;
+using LuminaItem = Lumina.Excel.Sheets.Item;
 
 namespace ItemIcons;
 
@@ -29,7 +29,7 @@ public readonly record struct Item
         IsCollectible = item.Flags.HasFlag(InventoryItem.ItemFlags.Collectable);
         Stains = item.Stains.ToArray();
 
-        Spiritbond = item.Spiritbond;
+        Spiritbond = item.SpiritbondOrCollectability;
         Condition = item.Condition;
         Materia = item.Materia.ToArray();
         MateriaGrade = item.MateriaGrades.ToArray();

@@ -16,7 +16,7 @@ internal sealed class Tradeable : SingleIconProvider
 
     public Tradeable()
     {
-        tradeableItems = LuminaSheets.ItemSheet.Where(i => !i.IsUntradable && i.ItemSearchCategory.Row != 0).Select(i => i.RowId).ToImmutableSortedSet();
+        tradeableItems = LuminaSheets.ItemSheet.Where(i => !i.IsUntradable && i.ItemSearchCategory.RowId != 0).Select(i => i.RowId).ToImmutableSortedSet();
     }
 
     // https://github.com/Critical-Impact/CriticalCommonLib/blob/bde61b016c0c587fc4ebd578c2e864828ee5b919/Models/InventoryItem.cs#L187

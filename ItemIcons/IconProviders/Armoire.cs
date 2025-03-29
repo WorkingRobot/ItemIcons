@@ -19,7 +19,7 @@ internal sealed class Armoire : IconProvider
         {
             var categoryRow = (uint)(i + 1);
             var category = LuminaSheets.CabinetCategorySheet.GetRow(categoryRow)!;
-            foreach (var item in LuminaSheets.CabinetSheet.Where(item => item.Category.Row == categoryRow).Select(i => i.Item.Row))
+            foreach (var item in LuminaSheets.CabinetSheet.Where(item => item.Category.RowId == categoryRow).Select(i => i.Item.RowId))
                 categoryLut.TryAdd(item, i);
             icons[i] = new TextureIcon((uint)category.Icon);
         }

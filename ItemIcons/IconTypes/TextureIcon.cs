@@ -46,7 +46,7 @@ internal sealed record TextureIcon : BaseIcon, IEquatable<TextureIcon>
     private unsafe TextureIcon(string texture, uint? iconId, UldRect? rect)
     {
         if (texture.Contains("_hr1", StringComparison.Ordinal))
-            throw new ArgumentException("High res textures are unsupported");
+            throw new ArgumentException("High res textures are unsupported", nameof(texture));
 
         Texture = texture;
         Rect = rect;

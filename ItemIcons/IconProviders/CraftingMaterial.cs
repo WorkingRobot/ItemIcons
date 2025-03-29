@@ -17,8 +17,9 @@ internal sealed class CraftingMaterial : SingleIconProvider
     public CraftingMaterial()
     {
         craftingMaterials = LuminaSheets.RecipeSheet
-            .SelectMany(r => r.UnkData5)
-            .Select(i => (uint)i.ItemIngredient)
+            .SelectMany(r => r.Ingredient)
+            .Where(r => r.IsValid)
+            .Select(i => i.RowId)
             .ToImmutableSortedSet();
     }
 

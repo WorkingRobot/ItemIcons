@@ -15,6 +15,8 @@ using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Game.Gui.ContextMenu;
 using Dalamud.Utility;
 using System.Linq;
+using Dalamud.Game.Addon.Lifecycle;
+using Dalamud.Game.Addon.Lifecycle.AddonArgTypes;
 
 namespace ItemIcons;
 
@@ -25,14 +27,6 @@ public sealed class Plugin : IDalamudPlugin
     private Settings SettingsWindow { get; }
     public IconRenderer Renderer { get; }
     public IconManager IconManager { get; }
-
-    [Signature("E8 ?? ?? ?? ?? 8B 8F ?? ?? ?? ?? 8B D1", DetourName = nameof(AddonSetupDetour))]
-    private readonly Hook<AddonSetupDelegate> addonSetupHook = null!;
-    [Signature("E8 ?? ?? ?? ?? 48 83 EF 01 75 D5", DetourName = nameof(AddonFinalizeDetour))]
-    private readonly Hook<AddonFinalizeDelegate> addonFinalizeHook = null!;
-
-    private unsafe delegate void* AddonSetupDelegate(AtkUnitBase* addon);
-    private unsafe delegate void AddonFinalizeDelegate(AtkUnitManager* manager, AtkUnitBase** addon);
 
     // Client::UI::UIModule.Update
     [Signature("48 8B C4 41 56 48 83 EC 60 FF 81", DetourName = nameof(UIModuleUpdateDetour))]
@@ -71,8 +65,8 @@ public sealed class Plugin : IDalamudPlugin
         Service.PluginInterface.UiBuilder.OpenConfigUi += OpenSettingsWindow;
 
         Service.GameInteropProvider.InitializeFromAttributes(this);
-        addonSetupHook.Enable();
-        addonFinalizeHook.Enable();
+        Service.AddonLifecycle.RegisterListener(AddonEvent.PostSetup, AddonSetupDetour);
+        Service.AddonLifecycle.RegisterListener(AddonEvent.PreFinalize, AddonFinalizeDetour);
 
         uiModuleUpdateHook.Enable();
 
@@ -104,8 +98,7 @@ public sealed class Plugin : IDalamudPlugin
     {
         uiModuleUpdateHook?.Dispose();
 
-        addonSetupHook?.Dispose();
-        addonFinalizeHook?.Dispose();
+        Service.AddonLifecycle.UnregisterListener(AddonSetupDetour, AddonFinalizeDetour);
 
         Service.PluginInterface.UiBuilder.Draw -= WindowSystem.Draw;
 
@@ -117,17 +110,14 @@ public sealed class Plugin : IDalamudPlugin
         IconManager.Dispose();
     }
 
-    private unsafe void* AddonSetupDetour(AtkUnitBase* addon)
+    private unsafe void AddonSetupDetour(AddonEvent type, AddonArgs args)
     {
-        var ret = addonSetupHook.Original(addon);
-        Renderer.SetupAddon(addon);
-        return ret;
+        Renderer.SetupAddon((AtkUnitBase*)args.Addon);
     }
 
-    private unsafe void AddonFinalizeDetour(AtkUnitManager* manager, AtkUnitBase** addonPtr)
+    private unsafe void AddonFinalizeDetour(AddonEvent type, AddonArgs args)
     {
-        Renderer.FinalizeAddon(*addonPtr);
-        addonFinalizeHook.Original(manager, addonPtr);
+        Renderer.FinalizeAddon((AtkUnitBase*)args.Addon);
     }
 
     private unsafe bool UIModuleUpdateDetour(UIModule* module, float frameDelta)

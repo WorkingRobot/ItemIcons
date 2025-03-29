@@ -12,7 +12,7 @@ internal sealed unsafe class ItemDetail : BaseItemProvider
 
     public override IEnumerable<AtkItemIcon> GetIcons(nint drawnAddon)
     {
-        yield return GetComponentIcon(drawnAddon, 31);
+        yield return GetComponentIcon(drawnAddon, 32);
     }
 
     private static uint? GetItemId()

@@ -46,14 +46,14 @@ internal sealed class MateriaText : IconProvider
         var icons = new List<BaseIcon>();
         foreach (var materia in LuminaSheets.MateriaSheet)
         {
-            if (!ParamAbbreviations.TryGetValue(materia.BaseParam.Row, out var abbreviation))
+            if (!ParamAbbreviations.TryGetValue(materia.BaseParam.RowId, out var abbreviation))
                 continue;
 
             var i = -1;
             foreach (var item in materia.Item)
             {
                 i++;
-                if (item.Row == 0)
+                if (item.RowId == 0 || !item.IsValid)
                     continue;
                 var increase = materia.Value[i];
                 if (increase == 0)
@@ -67,7 +67,7 @@ internal sealed class MateriaText : IconProvider
                     Flags = TextFlags.Glare | TextFlags.WordWrap | TextFlags.MultiLine | TextFlags.Edge,
                     Offset = 9,
                 });
-                MateriaToIconId.TryAdd(item.Row, icons.Count - 1);
+                MateriaToIconId.TryAdd(item.RowId, icons.Count - 1);
             }
         }
 

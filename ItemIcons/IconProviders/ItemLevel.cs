@@ -13,8 +13,7 @@ internal sealed class ItemLevel : IconProvider
     public ItemLevel()
     {
         var icons = new List<BaseIcon>();
-        var levelCount = LuminaSheets.ItemLevelSheet.RowCount;
-        for (var i = 1; i < levelCount; i++)
+        for (var i = 1; i < LuminaSheets.ItemLevelSheet.Count; i++)
         {
             icons.Add(new TextIcon()
             {
@@ -33,10 +32,10 @@ internal sealed class ItemLevel : IconProvider
 
     public override uint? GetMatch(Item item)
     {
-        if (item.LuminaRow.EquipSlotCategory.Row == 0)
+        if (item.LuminaRow.EquipSlotCategory.RowId == 0)
             return null;
 
-        var ilvl = item.LuminaRow.LevelItem.Row;
+        var ilvl = item.LuminaRow.LevelItem.RowId;
         if (ilvl != 0)
             return ResolveIconId(ilvl);
 

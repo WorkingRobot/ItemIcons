@@ -18,6 +18,7 @@ public sealed class Service
     [PluginService] public static ITextureProvider TextureProvider { get; private set; }
     [PluginService] public static IGameInteropProvider GameInteropProvider { get; private set; }
     [PluginService] public static IPluginLog PluginLog { get; private set; }
+    [PluginService] public static IAddonLifecycle AddonLifecycle { get; private set; }
     [PluginService] public static IContextMenu ContextMenu { get; private set; }
 
     public static Plugin Plugin { get; internal set; }

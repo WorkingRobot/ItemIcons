@@ -16,7 +16,7 @@ internal sealed class ArmoireSimple : SingleIconProvider
 
     public ArmoireSimple()
     {
-        armoireItems = LuminaSheets.CabinetSheet.Select(r => r.Item.Row).ToImmutableSortedSet();
+        armoireItems = LuminaSheets.CabinetSheet.Select(r => r.Item.RowId).ToImmutableSortedSet();
     }
 
     public override bool Matches(Item item) =>

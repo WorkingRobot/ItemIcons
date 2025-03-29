@@ -85,13 +85,13 @@ internal sealed class Materia : IconProvider
     {
         foreach(var materia in LuminaSheets.MateriaSheet)
         {
-            if (!BaseParamToIconId.TryGetValue(materia.BaseParam.Row, out var iconId))
+            if (!BaseParamToIconId.TryGetValue(materia.BaseParam.RowId, out var iconId))
                 continue;
-            foreach(var item in materia.Item)
+            foreach (var item in materia.Item)
             {
-                if (item.Row == 0)
+                if (item.RowId == 0 || !item.IsValid)
                     continue;
-                MateriaToIconId.TryAdd(item.Row, iconId);
+                MateriaToIconId.TryAdd(item.RowId, iconId);
             }
         }
 

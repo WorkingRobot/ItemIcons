@@ -340,8 +340,8 @@ internal sealed class ArmoryJob : IconProvider
         };
 
         var categories = LuminaSheets.ClassJobCategorySheet;
-        var icons = new BaseIcon[categories.RowCount];
-        for (uint i = 0; i < categories.RowCount; ++i)
+        var icons = new BaseIcon[categories.Count];
+        for (uint i = 0; i < categories.Count; ++i)
         {
             if (CategoryIcons.TryGetValue(i, out var icon))
                 icons[i] = icon;
@@ -353,7 +353,7 @@ internal sealed class ArmoryJob : IconProvider
 
     public override uint? GetMatch(Item item)
     {
-        var row = item.LuminaRow.ClassJobCategory.Row;
+        var row = item.LuminaRow.ClassJobCategory.RowId;
         if (displayedCategories.Contains(row))
             return IconOffset + row;
         return null;

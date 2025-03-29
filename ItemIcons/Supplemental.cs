@@ -1,5 +1,7 @@
+using ItemIcons.Utils;
 using Lumina;
 using LuminaSupplemental.Excel.Model;
+using LuminaSupplemental.Excel.Services;
 using System.Collections.Generic;
 
 namespace ItemIcons;
@@ -55,6 +57,11 @@ public static class Supplemental
         HouseVendors = LoadCsv<HouseVendor>(CsvLoader.HouseVendorResourceName); // House Vendors
     }
 
-    private static List<T> LoadCsv<T>(string name) where T : ICsv, new() =>
-        CsvLoader.LoadResource<T>(name, out _, GameData, GameData.Options.DefaultExcelLanguage);
+    private static List<T> LoadCsv<T>(string name) where T : ICsv, new()
+    {
+        var ret = CsvLoader.LoadResource<T>(name, true, out _, out var exceptions, GameData, GameData.Options.DefaultExcelLanguage);
+        foreach (var e in  exceptions)
+            Log.Error(e, $"Error loading csv {name}");
+        return ret!;
+    }
 }

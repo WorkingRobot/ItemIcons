@@ -180,7 +180,6 @@ public sealed unsafe class IconRenderer : IDisposable
     public void SetupAddon(AtkUnitBase* addon)
     {
         var name = addon->NameString;
-        Log.Debug($"Setup {name}");
         foreach (var provider in ItemProviders)
         {
             if (provider.GetDrawnAddonNames(nint.Zero)
@@ -203,7 +202,6 @@ public sealed unsafe class IconRenderer : IDisposable
     public void FinalizeAddon(AtkUnitBase* addon)
     {
         var name = addon->NameString;
-        Log.Debug($"Finalize {name}");
         foreach (var provider in ItemProviders)
         {
             if (provider.GetDrawnAddonNames(nint.Zero)

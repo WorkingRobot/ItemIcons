@@ -17,16 +17,16 @@ internal sealed class VendorItem : SingleIconProvider
     public VendorItem()
     {
         vendorItems = LuminaSheets.SpecialShopSheet
-            .SelectMany(s => s.Entries)             // Get shop entries
-            .SelectMany(i => i.Cost)                // Get entry costs
-            .Select(i => i.Item.Row)                // Get item id
+            .SelectMany(s => s.Item)                // Get shop entries
+            .SelectMany(i => i.ItemCosts)           // Get entry costs
+            .Where(i => i.ItemCost.IsValid)         // Item is valid
+            .Select(i => i.ItemCost.RowId)          // Get item id
             .Distinct()                             // Remove duplicates
             .Select(LuminaSheets.ItemSheet.GetRow)  // Get item row
             .Where(l =>
-                l != null &&                        // Item is valid
-                !l.Name.RawData.IsEmpty &&          // Item has a name
-                l.EquipSlotCategory.Row == 0 &&     // Item is not equippable
-                l.ItemUICategory.Row != 100         // Item is not a currency
+                !l.Name.IsEmpty &&                  // Item has a name
+                l.EquipSlotCategory.RowId == 0 &&   // Item is not equippable
+                l.ItemUICategory.RowId != 100       // Item is not a currency
             )
             .Select(l => l!.RowId)
             .ToImmutableSortedSet();
